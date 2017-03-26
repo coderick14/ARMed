@@ -1,6 +1,10 @@
 package memory
 
-import ALU "github.com/coderick14/ARMed/ALU"
+import (
+	"errors"
+	_ "github.com/coderick14/ARMed/ALU"
+	"strings"
+)
 
 type InstructionMemory struct {
 	PC           uint64
@@ -19,26 +23,219 @@ func (instructionMemory *InstructionMemory) updatePC() {
  * Method to check if program counter is valid (is program over or not)
  */
 
-func (instructionMemory *InstructionMemory) isValidPC() {
+func (instructionMemory *InstructionMemory) isValidPC() bool {
 
+	return true
 }
 
 /*
- * Function : checkInstructionType
- * Details  : checks instruction type and invokes the checkSyntax method of the particular instruction
- */
-
-func (instructionMemory *InstructionMemory) checkInstructionType() {
-
-}
-
-/*
- * Function : executeInstruction
+ * Function : validateAndExecuteInstruction
  * Details  : checks instruction type, performs syntax analysis, parses the statement and executes it
  */
 
-func (instructionMemory *InstructionMemory) executeInstruction() {
+func (instructionMemory *InstructionMemory) validateAndExecuteInstruction() error {
 
+	//get next instruction to be executed from instruction memory
+	currentInstruction := instructionMemory.Instructions[instructionMemory.PC]
+
+	var err error
+
+	if strings.HasPrefix(currentInstruction, "ADD ") {
+
+		currentInstructionObject := AddInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "SUB ") {
+
+		currentInstructionObject := SubInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "ADDI ") {
+
+		currentInstructionObject := AddImmediateInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "SUBI ") {
+
+		currentInstructionObject := SubImmediateInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "ADDS ") {
+
+		currentInstructionObject := AddAndSetFlagsInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "SUBS ") {
+
+		currentInstructionObject := SubAndSetFlagsInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "ADDIS ") {
+
+		currentInstructionObject := AddImmediateAndSetFlagsInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "SUBIS ") {
+
+		currentInstructionObject := SubImmediateAndSetFlagsInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "LDUR ") {
+
+		currentInstructionObject := LoadInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "STUR ") {
+
+		currentInstructionObject := StoreInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "LDURSW ") {
+
+		currentInstructionObject := LoadWordInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "STURW ") {
+
+		currentInstructionObject := StoreWordInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "LDURH ") {
+
+		currentInstructionObject := LoadHalfInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "STURH ") {
+
+		currentInstructionObject := StoreHalfInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "LDURB ") {
+
+		currentInstructionObject := LoadByteInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "STURB ") {
+
+		currentInstructionObject := StoreByteInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "LDXR ") {
+
+		currentInstructionObject := LoadExclusiveInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "STXR ") {
+
+		currentInstructionObject := StoreExclusiveInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "MOVZ ") {
+
+		currentInstructionObject := MoveWithZeroInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "MOVK ") {
+
+		currentInstructionObject := MoveWithKeepInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "AND ") {
+
+		currentInstructionObject := AndInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "ORR ") {
+
+		currentInstructionObject := OrInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "EOR ") {
+
+		currentInstructionObject := ExclusiveOrInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "ANDI ") {
+
+		currentInstructionObject := AndImmediateInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "ORRI ") {
+
+		currentInstructionObject := OrImmediateInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "EORI ") {
+
+		currentInstructionObject := ExclusiveOrImmediateInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "LSL ") {
+
+		currentInstructionObject := LeftShiftInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "LSR ") {
+
+		currentInstructionObject := RightShiftInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "CBZ ") {
+
+		currentInstructionObject := BranchOnZeroInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "CBNZ ") {
+
+		currentInstructionObject := BranchOnNonZeroInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "B.cond ") {
+
+		currentInstructionObject := ConditionalBranchInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "B ") {
+
+		currentInstructionObject := BranchInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "BR ") {
+
+		currentInstructionObject := BranchToRegisterInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "BL ") {
+
+		currentInstructionObject := BranchWithLinkInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else {
+
+		err = errors.New("Invalid instruction type on line number " + string(instructionMemory.PC+1))
+
+	}
+
+	return err
+}
+
+/*
+ * All instructions implement the Instruction interface
+ */
+
+type Instruction interface {
+	checkSyntax() bool
+	execute()
+}
+
+func executeInstruction(currentInstruction Instruction) error {
+	isSyntaxOK := currentInstruction.checkSyntax()
+	if isSyntaxOK {
+		currentInstruction.execute()
+	} else {
+		return errors.New("Syntax error occured")
+	}
+	return nil
 }
 
 /*
@@ -48,13 +245,15 @@ func (instructionMemory *InstructionMemory) executeInstruction() {
  */
 
 type AddInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *AddInstruction) checkSyntax() {
+func (instruction *AddInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *AddInstruction) execute() {
@@ -68,13 +267,15 @@ func (instruction *AddInstruction) execute() {
  */
 
 type SubInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *SubInstruction) checkSyntax() {
+func (instruction *SubInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *SubInstruction) execute() {
@@ -88,13 +289,15 @@ func (instruction *SubInstruction) execute() {
  */
 
 type AddImmediateInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *AddImmediateInstruction) checkSyntax() {
+func (instruction *AddImmediateInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *AddImmediateInstruction) execute() {
@@ -103,18 +306,20 @@ func (instruction *AddImmediateInstruction) execute() {
 
 /*
  * INSTRUCTION : SUB IMMEDIATE
- * Example : ADDI X1, X2, 40
+ * Example : SUBI X1, X2, 40
  * Meaning : X1 = X2 - 40
  */
 
 type SubImmediateInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *SubImmediateInstruction) checkSyntax() {
+func (instruction *SubImmediateInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *SubImmediateInstruction) execute() {
@@ -129,13 +334,15 @@ func (instruction *SubImmediateInstruction) execute() {
  */
 
 type AddAndSetFlagsInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *AddAndSetFlagsInstruction) checkSyntax() {
+func (instruction *AddAndSetFlagsInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *AddAndSetFlagsInstruction) execute() {
@@ -144,19 +351,21 @@ func (instruction *AddAndSetFlagsInstruction) execute() {
 
 /*
  * INSTRUCTION : SUB AND SET FLAGS
- * Example : ADDS X1, X2, X3
+ * Example : SUBS X1, X2, X3
  * Meaning : X1 = X2 - X3
  * Comments : Subtracts and sets condition codes
  */
 
 type SubAndSetFlagsInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *SubAndSetFlagsInstruction) checkSyntax() {
+func (instruction *SubAndSetFlagsInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *SubAndSetFlagsInstruction) execute() {
@@ -171,13 +380,15 @@ func (instruction *SubAndSetFlagsInstruction) execute() {
  */
 
 type AddImmediateAndSetFlagsInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() {
+func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *AddImmediateAndSetFlagsInstruction) execute() {
@@ -192,13 +403,15 @@ func (instruction *AddImmediateAndSetFlagsInstruction) execute() {
  */
 
 type SubImmediateAndSetFlagsInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() {
+func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *SubImmediateAndSetFlagsInstruction) execute() {
@@ -213,13 +426,15 @@ func (instruction *SubImmediateAndSetFlagsInstruction) execute() {
  */
 
 type LoadInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *LoadInstruction) checkSyntax() {
+func (instruction *LoadInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *LoadInstruction) execute() {
@@ -234,13 +449,15 @@ func (instruction *LoadInstruction) execute() {
  */
 
 type StoreInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *StoreInstruction) checkSyntax() {
+func (instruction *StoreInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *StoreInstruction) execute() {
@@ -255,13 +472,15 @@ func (instruction *StoreInstruction) execute() {
  */
 
 type LoadWordInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *LoadWordInstruction) checkSyntax() {
+func (instruction *LoadWordInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *LoadWordInstruction) execute() {
@@ -276,13 +495,15 @@ func (instruction *LoadWordInstruction) execute() {
  */
 
 type StoreWordInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *StoreWordInstruction) checkSyntax() {
+func (instruction *StoreWordInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *StoreWordInstruction) execute() {
@@ -297,13 +518,15 @@ func (instruction *StoreWordInstruction) execute() {
  */
 
 type LoadHalfInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *LoadHalfInstruction) checkSyntax() {
+func (instruction *LoadHalfInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *LoadHalfInstruction) execute() {
@@ -318,13 +541,15 @@ func (instruction *LoadHalfInstruction) execute() {
  */
 
 type StoreHalfInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *StoreHalfInstruction) checkSyntax() {
+func (instruction *StoreHalfInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *StoreHalfInstruction) execute() {
@@ -333,19 +558,21 @@ func (instruction *StoreHalfInstruction) execute() {
 
 /*
  * INSTRUCTION : LOAD BYTE
- * Example : LDURH X1, [X2, 40]
+ * Example : LDURB X1, [X2, 40]
  * Meaning : X1 = Memory[X2 + 40]
  * Comments : Byte from memory to register
  */
 
 type LoadByteInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *LoadByteInstruction) checkSyntax() {
+func (instruction *LoadByteInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *LoadByteInstruction) execute() {
@@ -354,19 +581,21 @@ func (instruction *LoadByteInstruction) execute() {
 
 /*
  * INSTRUCTION : STORE BYTE
- * Example : STURH X1, [X2, 40]
+ * Example : STURB X1, [X2, 40]
  * Meaning : Memory[X2 + 40] = X1
  * Comments : Byte from register to memory
  */
 
 type StoreByteInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *StoreByteInstruction) checkSyntax() {
+func (instruction *StoreByteInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *StoreByteInstruction) execute() {
@@ -381,12 +610,14 @@ func (instruction *StoreByteInstruction) execute() {
  */
 
 type LoadExclusiveInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 }
 
-func (instruction *LoadExclusiveInstruction) checkSyntax() {
+func (instruction *LoadExclusiveInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *LoadExclusiveInstruction) execute() {
@@ -401,13 +632,15 @@ func (instruction *LoadExclusiveInstruction) execute() {
  */
 
 type StoreExclusiveInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *StoreExclusiveInstruction) checkSyntax() {
+func (instruction *StoreExclusiveInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *StoreExclusiveInstruction) execute() {
@@ -422,13 +655,15 @@ func (instruction *StoreExclusiveInstruction) execute() {
  */
 
 type MoveWithZeroInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *MoveWithZeroInstruction) checkSyntax() {
+func (instruction *MoveWithZeroInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *MoveWithZeroInstruction) execute() {
@@ -443,13 +678,15 @@ func (instruction *MoveWithZeroInstruction) execute() {
  */
 
 type MoveWithKeepInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *MoveWithKeepInstruction) checkSyntax() {
+func (instruction *MoveWithKeepInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *MoveWithKeepInstruction) execute() {
@@ -464,13 +701,15 @@ func (instruction *MoveWithKeepInstruction) execute() {
  */
 
 type AndInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *AndInstruction) checkSyntax() {
+func (instruction *AndInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *AndInstruction) execute() {
@@ -485,13 +724,15 @@ func (instruction *AndInstruction) execute() {
  */
 
 type OrInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *OrInstruction) checkSyntax() {
+func (instruction *OrInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *OrInstruction) execute() {
@@ -506,13 +747,15 @@ func (instruction *OrInstruction) execute() {
  */
 
 type ExclusiveOrInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *ExclusiveOrInstruction) checkSyntax() {
+func (instruction *ExclusiveOrInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *ExclusiveOrInstruction) execute() {
@@ -527,13 +770,15 @@ func (instruction *ExclusiveOrInstruction) execute() {
  */
 
 type AndImmediateInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *AndImmediateInstruction) checkSyntax() {
+func (instruction *AndImmediateInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *AndImmediateInstruction) execute() {
@@ -548,13 +793,15 @@ func (instruction *AndImmediateInstruction) execute() {
  */
 
 type OrImmediateInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *OrImmediateInstruction) checkSyntax() {
+func (instruction *OrImmediateInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *OrImmediateInstruction) execute() {
@@ -563,19 +810,21 @@ func (instruction *OrImmediateInstruction) execute() {
 
 /*
  * INSTRUCTION : LOGICAL EXCLUSIVE-OR IMMEDIATE
- * Example : ERRI X1, X2, 20
+ * Example : EORI X1, X2, 20
  * Meaning : X1 = X2 ^ 20
  * Comments : Bitwise-Xor of X2 with a constant, stores result in X1
  */
 
 type ExclusiveOrImmediateInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() {
+func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *ExclusiveOrImmediateInstruction) execute() {
@@ -590,13 +839,15 @@ func (instruction *ExclusiveOrImmediateInstruction) execute() {
  */
 
 type LeftShiftInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *LeftShiftInstruction) checkSyntax() {
+func (instruction *LeftShiftInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *LeftShiftInstruction) execute() {
@@ -611,13 +862,15 @@ func (instruction *LeftShiftInstruction) execute() {
  */
 
 type RightShiftInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 	reg3 int64
 }
 
-func (instruction *RightShiftInstruction) checkSyntax() {
+func (instruction *RightShiftInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *RightShiftInstruction) execute() {
@@ -632,12 +885,14 @@ func (instruction *RightShiftInstruction) execute() {
  */
 
 type BranchOnZeroInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 }
 
-func (instruction *BranchOnZeroInstruction) checkSyntax() {
+func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *BranchOnZeroInstruction) execute() {
@@ -652,12 +907,14 @@ func (instruction *BranchOnZeroInstruction) execute() {
  */
 
 type BranchOnNonZeroInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 }
 
-func (instruction *BranchOnNonZeroInstruction) checkSyntax() {
+func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *BranchOnNonZeroInstruction) execute() {
@@ -672,12 +929,14 @@ func (instruction *BranchOnNonZeroInstruction) execute() {
  */
 
 type ConditionalBranchInstruction struct {
+	inst string
 	reg1 int64
 	reg2 int64
 }
 
-func (instruction *ConditionalBranchInstruction) checkSyntax() {
+func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *ConditionalBranchInstruction) execute() {
@@ -692,11 +951,13 @@ func (instruction *ConditionalBranchInstruction) execute() {
  */
 
 type BranchInstruction struct {
+	inst string
 	reg1 int64
 }
 
-func (instruction *BranchInstruction) checkSyntax() {
+func (instruction *BranchInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *BranchInstruction) execute() {
@@ -711,11 +972,13 @@ func (instruction *BranchInstruction) execute() {
  */
 
 type BranchToRegisterInstruction struct {
+	inst string
 	reg1 int64
 }
 
-func (instruction *BranchToRegisterInstruction) checkSyntax() {
+func (instruction *BranchToRegisterInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *BranchToRegisterInstruction) execute() {
@@ -730,11 +993,13 @@ func (instruction *BranchToRegisterInstruction) execute() {
  */
 
 type BranchWithLinkInstruction struct {
+	inst string
 	reg1 int64
 }
 
-func (instruction *BranchWithLinkInstruction) checkSyntax() {
+func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
 
+	return true
 }
 
 func (instruction *BranchWithLinkInstruction) execute() {
