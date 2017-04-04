@@ -2,21 +2,36 @@ package memory
 
 import (
 	"errors"
-	_ "github.com/coderick14/ARMed/ALU"
+	ALU "github.com/coderick14/ARMed/ALU"
 	"strings"
 )
 
 type InstructionMemory struct {
-	PC           uint64
+	PC           int64
 	Instructions []string
 }
+
+var InstructionMem = InstructionMemory{
+	PC:           0,
+	Instructions: []string{},
+}
+
+var dataMemory = DataMemory{
+	Memory: make([]int32, 4096),
+}
+
+const INCREMENT int64 = 1
 
 /*
  * Method to update program counter
  */
 
-func (instructionMemory *InstructionMemory) updatePC() {
-
+func (instructionMemory *InstructionMemory) updatePC(offset ...int64) {
+	if len(offset) == 0 {
+		instructionMemory.PC += INCREMENT;
+	} else {
+		instructionMemory.PC += offset[0]
+	}
 }
 
 /*
@@ -24,8 +39,8 @@ func (instructionMemory *InstructionMemory) updatePC() {
  */
 
 func (instructionMemory *InstructionMemory) isValidPC() bool {
-
-	return true
+	isValidPC := instructionMemory.PC >= 0 && instructionMemory.PC < int64(len(instructionMemory.Instructions))
+	return isValidPC
 }
 
 /*
@@ -33,7 +48,7 @@ func (instructionMemory *InstructionMemory) isValidPC() bool {
  * Details  : checks instruction type, performs syntax analysis, parses the statement and executes it
  */
 
-func (instructionMemory *InstructionMemory) validateAndExecuteInstruction() error {
+func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() error {
 
 	//get next instruction to be executed from instruction memory
 	currentInstruction := instructionMemory.Instructions[instructionMemory.PC]
@@ -190,7 +205,7 @@ func (instructionMemory *InstructionMemory) validateAndExecuteInstruction() erro
 		currentInstructionObject := BranchOnNonZeroInstruction{inst: currentInstruction}
 		err = executeInstruction(&currentInstructionObject)
 
-	} else if strings.HasPrefix(currentInstruction, "B.cond ") {
+	} else if strings.HasPrefix(currentInstruction, "B.") {
 
 		currentInstructionObject := ConditionalBranchInstruction{inst: currentInstruction}
 		err = executeInstruction(&currentInstructionObject)
@@ -246,9 +261,9 @@ func executeInstruction(currentInstruction Instruction) error {
 
 type AddInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *AddInstruction) checkSyntax() bool {
@@ -257,7 +272,9 @@ func (instruction *AddInstruction) checkSyntax() bool {
 }
 
 func (instruction *AddInstruction) execute() {
-
+	result := ALU.Adder(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -268,9 +285,9 @@ func (instruction *AddInstruction) execute() {
 
 type SubInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *SubInstruction) checkSyntax() bool {
@@ -279,7 +296,9 @@ func (instruction *SubInstruction) checkSyntax() bool {
 }
 
 func (instruction *SubInstruction) execute() {
-
+	result := ALU.Adder(getRegisterValue(instruction.reg2), -getRegisterValue(instruction.reg3))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -289,10 +308,10 @@ func (instruction *SubInstruction) execute() {
  */
 
 type AddImmediateInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	reg2     uint
+	constant uint
 }
 
 func (instruction *AddImmediateInstruction) checkSyntax() bool {
@@ -301,7 +320,9 @@ func (instruction *AddImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *AddImmediateInstruction) execute() {
-
+	result := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.constant))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -311,10 +332,10 @@ func (instruction *AddImmediateInstruction) execute() {
  */
 
 type SubImmediateInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	reg2     uint
+	constant uint
 }
 
 func (instruction *SubImmediateInstruction) checkSyntax() bool {
@@ -323,7 +344,9 @@ func (instruction *SubImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *SubImmediateInstruction) execute() {
-
+	result := ALU.Adder(getRegisterValue(instruction.reg2), -int64(instruction.constant))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -335,9 +358,9 @@ func (instruction *SubImmediateInstruction) execute() {
 
 type AddAndSetFlagsInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *AddAndSetFlagsInstruction) checkSyntax() bool {
@@ -346,7 +369,42 @@ func (instruction *AddAndSetFlagsInstruction) checkSyntax() bool {
 }
 
 func (instruction *AddAndSetFlagsInstruction) execute() {
+	result := ALU.Adder(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
+	setRegisterValue(instruction.reg1, result)
 
+	//set flag N
+	if result < 0 {
+		flagNegative = true
+	} else {
+		flagNegative = false
+	}
+
+	//set flag Z
+	if result == 0 {
+		flagZero = true
+	} else {
+		flagZero = false
+	}
+
+	var hasOverflowOccured bool
+
+	//set flag V (signed addition overflow)
+	hasOverflowOccured = (getRegisterValue(instruction.reg2) > 0 && getRegisterValue(instruction.reg3) > 0 && result >= int64(1<<31)) || (getRegisterValue(instruction.reg2) < 0 && getRegisterValue(instruction.reg3) < 0 && result < -int64(1<<31))
+	if hasOverflowOccured {
+		flagOverflow = true
+	} else {
+		flagOverflow = false
+	}
+
+	//set flag C (unsigned addition overflow)
+	unsignedSum := ALU.UnsignedAdder(uint64(getRegisterValue(instruction.reg2)), uint64(getRegisterValue(instruction.reg3)))
+	if unsignedSum >= uint64(1<<32) {
+		flagCarry = true
+	} else {
+		flagCarry = false
+	}
+
+	InstructionMem.updatePC()
 }
 
 /*
@@ -358,9 +416,9 @@ func (instruction *AddAndSetFlagsInstruction) execute() {
 
 type SubAndSetFlagsInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *SubAndSetFlagsInstruction) checkSyntax() bool {
@@ -369,7 +427,41 @@ func (instruction *SubAndSetFlagsInstruction) checkSyntax() bool {
 }
 
 func (instruction *SubAndSetFlagsInstruction) execute() {
+	result := ALU.Adder(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
+	setRegisterValue(instruction.reg1, result)
 
+	//set flag N
+	if result < 0 {
+		flagNegative = true
+	} else {
+		flagNegative = false
+	}
+
+	//set flag Z
+	if result == 0 {
+		flagZero = true
+	} else {
+		flagZero = false
+	}
+
+	var hasOverflowOccured bool
+
+	//set flag V (signed addition overflow)
+	hasOverflowOccured = (getRegisterValue(instruction.reg2) > 0 && getRegisterValue(instruction.reg3) < 0 && result >= int64(1<<31)) || (getRegisterValue(instruction.reg2) < 0 && getRegisterValue(instruction.reg3) > 0 && result < -int64(1<<31))
+	if hasOverflowOccured {
+		flagOverflow = true
+	} else {
+		flagOverflow = false
+	}
+
+	//set flag C (unsigned addition overflow)
+	if uint64(getRegisterValue(instruction.reg2)) < uint64(getRegisterValue(instruction.reg3)) {
+		flagCarry = true
+	} else {
+		flagCarry = false
+	}
+
+	InstructionMem.updatePC()
 }
 
 /*
@@ -380,10 +472,10 @@ func (instruction *SubAndSetFlagsInstruction) execute() {
  */
 
 type AddImmediateAndSetFlagsInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	reg2     uint
+	constant uint
 }
 
 func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() bool {
@@ -392,7 +484,42 @@ func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() bool {
 }
 
 func (instruction *AddImmediateAndSetFlagsInstruction) execute() {
+	result := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.constant))
+	setRegisterValue(instruction.reg1, result)
 
+	//set flag N
+	if result < 0 {
+		flagNegative = true
+	} else {
+		flagNegative = false
+	}
+
+	//set flag Z
+	if result == 0 {
+		flagZero = true
+	} else {
+		flagZero = false
+	}
+
+	var hasOverflowOccured bool
+
+	//set flag V (signed addition overflow)
+	hasOverflowOccured = (getRegisterValue(instruction.reg2) > 0 && result >= int64(1<<31))
+	if hasOverflowOccured {
+		flagOverflow = true
+	} else {
+		flagOverflow = false
+	}
+
+	//set flag C (unsigned addition overflow)
+	unsignedSum := ALU.UnsignedAdder(uint64(getRegisterValue(instruction.reg2)), uint64(instruction.constant))
+	if unsignedSum >= uint64(1<<32) {
+		flagCarry = true
+	} else {
+		flagCarry = false
+	}
+
+	InstructionMem.updatePC()
 }
 
 /*
@@ -403,10 +530,10 @@ func (instruction *AddImmediateAndSetFlagsInstruction) execute() {
  */
 
 type SubImmediateAndSetFlagsInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	reg2     uint
+	constant uint
 }
 
 func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() bool {
@@ -415,7 +542,41 @@ func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() bool {
 }
 
 func (instruction *SubImmediateAndSetFlagsInstruction) execute() {
+	result := ALU.Adder(getRegisterValue(instruction.reg2), -int64(instruction.constant))
+	setRegisterValue(instruction.reg1, result)
 
+	//set flag N
+	if result < 0 {
+		flagNegative = true
+	} else {
+		flagNegative = false
+	}
+
+	//set flag Z
+	if result == 0 {
+		flagZero = true
+	} else {
+		flagZero = false
+	}
+
+	var hasOverflowOccured bool
+
+	//set flag V (signed addition overflow)
+	hasOverflowOccured = (getRegisterValue(instruction.reg2) < 0 && result < -int64(1<<31))
+	if hasOverflowOccured {
+		flagOverflow = true
+	} else {
+		flagOverflow = false
+	}
+
+	//set flag C (unsigned addition overflow)
+	if uint64(getRegisterValue(instruction.reg2)) < uint64(instruction.constant) {
+		flagCarry = true
+	} else {
+		flagCarry = false
+	}
+
+	InstructionMem.updatePC()
 }
 
 /*
@@ -426,10 +587,10 @@ func (instruction *SubImmediateAndSetFlagsInstruction) execute() {
  */
 
 type LoadInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *LoadInstruction) checkSyntax() bool {
@@ -449,10 +610,10 @@ func (instruction *LoadInstruction) execute() {
  */
 
 type StoreInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *StoreInstruction) checkSyntax() bool {
@@ -472,10 +633,10 @@ func (instruction *StoreInstruction) execute() {
  */
 
 type LoadWordInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *LoadWordInstruction) checkSyntax() bool {
@@ -484,7 +645,10 @@ func (instruction *LoadWordInstruction) checkSyntax() bool {
 }
 
 func (instruction *LoadWordInstruction) execute() {
-
+	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
+	memoryValue := dataMemory.read(uint64(memoryIndex))
+	setRegisterValue(instruction.reg1, int64(memoryValue))
+	InstructionMem.updatePC()
 }
 
 /*
@@ -495,10 +659,10 @@ func (instruction *LoadWordInstruction) execute() {
  */
 
 type StoreWordInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *StoreWordInstruction) checkSyntax() bool {
@@ -507,7 +671,10 @@ func (instruction *StoreWordInstruction) checkSyntax() bool {
 }
 
 func (instruction *StoreWordInstruction) execute() {
-
+	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
+	registerValue := getRegisterValue(instruction.reg1)
+	dataMemory.write(uint64(memoryIndex), int32(registerValue))
+	InstructionMem.updatePC()
 }
 
 /*
@@ -519,9 +686,9 @@ func (instruction *StoreWordInstruction) execute() {
 
 type LoadHalfInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *LoadHalfInstruction) checkSyntax() bool {
@@ -542,9 +709,9 @@ func (instruction *LoadHalfInstruction) execute() {
 
 type StoreHalfInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *StoreHalfInstruction) checkSyntax() bool {
@@ -565,9 +732,9 @@ func (instruction *StoreHalfInstruction) execute() {
 
 type LoadByteInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *LoadByteInstruction) checkSyntax() bool {
@@ -588,9 +755,9 @@ func (instruction *LoadByteInstruction) execute() {
 
 type StoreByteInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *StoreByteInstruction) checkSyntax() bool {
@@ -611,8 +778,8 @@ func (instruction *StoreByteInstruction) execute() {
 
 type LoadExclusiveInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
+	reg1 uint
+	reg2 uint
 }
 
 func (instruction *LoadExclusiveInstruction) checkSyntax() bool {
@@ -633,9 +800,9 @@ func (instruction *LoadExclusiveInstruction) execute() {
 
 type StoreExclusiveInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *StoreExclusiveInstruction) checkSyntax() bool {
@@ -655,10 +822,10 @@ func (instruction *StoreExclusiveInstruction) execute() {
  */
 
 type MoveWithZeroInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	constant uint16
+	offset   uint
 }
 
 func (instruction *MoveWithZeroInstruction) checkSyntax() bool {
@@ -667,7 +834,11 @@ func (instruction *MoveWithZeroInstruction) checkSyntax() bool {
 }
 
 func (instruction *MoveWithZeroInstruction) execute() {
-
+	value := int64(instruction.constant)
+	offset := uint(16 * instruction.offset)
+	value = value << offset
+	setRegisterValue(instruction.reg1, value)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -678,10 +849,10 @@ func (instruction *MoveWithZeroInstruction) execute() {
  */
 
 type MoveWithKeepInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	constant uint16
+	offset   uint
 }
 
 func (instruction *MoveWithKeepInstruction) checkSyntax() bool {
@@ -690,7 +861,24 @@ func (instruction *MoveWithKeepInstruction) checkSyntax() bool {
 }
 
 func (instruction *MoveWithKeepInstruction) execute() {
+	value := int64(instruction.constant)
+	offset := uint(16 * instruction.offset)
+	value = value << offset
+	registerValue := getRegisterValue(instruction.reg1)
 
+	var lastBitIndex uint
+	lastBitIndex = offset + 15
+
+	for i := offset; i <= lastBitIndex; i++ {
+		if value&(1<<i) != 0 {
+			registerValue = registerValue | (1 << i)
+		} else {
+			registerValue = registerValue &^ (1 << i)
+		}
+	}
+
+	setRegisterValue(instruction.reg1, registerValue)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -702,9 +890,9 @@ func (instruction *MoveWithKeepInstruction) execute() {
 
 type AndInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *AndInstruction) checkSyntax() bool {
@@ -713,7 +901,9 @@ func (instruction *AndInstruction) checkSyntax() bool {
 }
 
 func (instruction *AndInstruction) execute() {
-
+	result := ALU.LogicalAND(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -725,9 +915,9 @@ func (instruction *AndInstruction) execute() {
 
 type OrInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *OrInstruction) checkSyntax() bool {
@@ -736,7 +926,9 @@ func (instruction *OrInstruction) checkSyntax() bool {
 }
 
 func (instruction *OrInstruction) execute() {
-
+	result := ALU.LogicalOR(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -748,9 +940,9 @@ func (instruction *OrInstruction) execute() {
 
 type ExclusiveOrInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	reg1 uint
+	reg2 uint
+	reg3 uint
 }
 
 func (instruction *ExclusiveOrInstruction) checkSyntax() bool {
@@ -759,7 +951,9 @@ func (instruction *ExclusiveOrInstruction) checkSyntax() bool {
 }
 
 func (instruction *ExclusiveOrInstruction) execute() {
-
+	result := ALU.LogicalXOR(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -770,10 +964,10 @@ func (instruction *ExclusiveOrInstruction) execute() {
  */
 
 type AndImmediateInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	reg2     uint
+	constant uint
 }
 
 func (instruction *AndImmediateInstruction) checkSyntax() bool {
@@ -782,7 +976,9 @@ func (instruction *AndImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *AndImmediateInstruction) execute() {
-
+	result := ALU.LogicalAND(getRegisterValue(instruction.reg2), int64(instruction.constant))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -793,10 +989,10 @@ func (instruction *AndImmediateInstruction) execute() {
  */
 
 type OrImmediateInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	reg2     uint
+	constant uint
 }
 
 func (instruction *OrImmediateInstruction) checkSyntax() bool {
@@ -805,7 +1001,9 @@ func (instruction *OrImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *OrImmediateInstruction) execute() {
-
+	result := ALU.LogicalOR(getRegisterValue(instruction.reg2), int64(instruction.constant))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -816,10 +1014,10 @@ func (instruction *OrImmediateInstruction) execute() {
  */
 
 type ExclusiveOrImmediateInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst     string
+	reg1     uint
+	reg2     uint
+	constant uint
 }
 
 func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() bool {
@@ -828,7 +1026,9 @@ func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *ExclusiveOrImmediateInstruction) execute() {
-
+	result := ALU.LogicalXOR(getRegisterValue(instruction.reg2), int64(instruction.constant))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -839,10 +1039,10 @@ func (instruction *ExclusiveOrImmediateInstruction) execute() {
  */
 
 type LeftShiftInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *LeftShiftInstruction) checkSyntax() bool {
@@ -851,7 +1051,9 @@ func (instruction *LeftShiftInstruction) checkSyntax() bool {
 }
 
 func (instruction *LeftShiftInstruction) execute() {
-
+	result := getRegisterValue(instruction.reg2) << instruction.offset
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -862,10 +1064,10 @@ func (instruction *LeftShiftInstruction) execute() {
  */
 
 type RightShiftInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
-	reg3 int64
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *RightShiftInstruction) checkSyntax() bool {
@@ -874,7 +1076,9 @@ func (instruction *RightShiftInstruction) checkSyntax() bool {
 }
 
 func (instruction *RightShiftInstruction) execute() {
-
+	result := getRegisterValue(instruction.reg2) >> instruction.offset
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
 }
 
 /*
@@ -885,9 +1089,9 @@ func (instruction *RightShiftInstruction) execute() {
  */
 
 type BranchOnZeroInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
+	inst   string
+	reg1   uint
+	offset int64
 }
 
 func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
@@ -896,7 +1100,11 @@ func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchOnZeroInstruction) execute() {
-
+	if getRegisterValue(instruction.reg1) == 0 {
+		InstructionMem.updatePC(instruction.offset)
+	} else {
+		InstructionMem.updatePC()
+	}
 }
 
 /*
@@ -907,9 +1115,9 @@ func (instruction *BranchOnZeroInstruction) execute() {
  */
 
 type BranchOnNonZeroInstruction struct {
-	inst string
-	reg1 int64
-	reg2 int64
+	inst   string
+	reg1   uint
+	offset int64
 }
 
 func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
@@ -918,7 +1126,11 @@ func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchOnNonZeroInstruction) execute() {
-
+	if getRegisterValue(instruction.reg1) != 0 {
+		InstructionMem.updatePC(instruction.offset)
+	} else {
+		InstructionMem.updatePC()
+	}
 }
 
 /*
@@ -930,8 +1142,8 @@ func (instruction *BranchOnNonZeroInstruction) execute() {
 
 type ConditionalBranchInstruction struct {
 	inst string
-	reg1 int64
-	reg2 int64
+	reg1 uint
+	reg2 uint
 }
 
 func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
@@ -952,7 +1164,7 @@ func (instruction *ConditionalBranchInstruction) execute() {
 
 type BranchInstruction struct {
 	inst string
-	reg1 int64
+	offset int64
 }
 
 func (instruction *BranchInstruction) checkSyntax() bool {
@@ -961,7 +1173,7 @@ func (instruction *BranchInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchInstruction) execute() {
-
+	InstructionMem.updatePC(instruction.offset)
 }
 
 /*
@@ -973,7 +1185,7 @@ func (instruction *BranchInstruction) execute() {
 
 type BranchToRegisterInstruction struct {
 	inst string
-	reg1 int64
+	reg1 uint
 }
 
 func (instruction *BranchToRegisterInstruction) checkSyntax() bool {
@@ -994,7 +1206,7 @@ func (instruction *BranchToRegisterInstruction) execute() {
 
 type BranchWithLinkInstruction struct {
 	inst string
-	reg1 int64
+	offset int64
 }
 
 func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
@@ -1003,5 +1215,6 @@ func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchWithLinkInstruction) execute() {
-
+	setRegisterValue(30, InstructionMem.PC + INCREMENT)
+	InstructionMem.updatePC(instruction.offset)
 }
