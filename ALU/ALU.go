@@ -3,7 +3,7 @@ package ALU
 /*
  * Function to perform signed addition
  */
-func adder(val1, val2 int64) int64 {
+func Adder(val1, val2 int64) int64 {
 	return val1 + val2
 }
 
@@ -11,7 +11,7 @@ func adder(val1, val2 int64) int64 {
  * Function to perform logical AND operation
  */
 
-func logicalAND(val1, val2 int64) int64 {
+func LogicalAND(val1, val2 int64) int64 {
 	return val1 & val2
 }
 
@@ -19,7 +19,7 @@ func logicalAND(val1, val2 int64) int64 {
  * Function to perform logical OR operation
  */
 
-func logicalOR(val1, val2 int64) int64 {
+func LogicalOR(val1, val2 int64) int64 {
 	return val1 | val2
 }
 
@@ -27,6 +27,14 @@ func logicalOR(val1, val2 int64) int64 {
  * Function to perform logical XOR operation
  */
 
-func logicalXOR(val1, val2 int64) int64 {
+func LogicalXOR(val1, val2 int64) int64 {
 	return val1 ^ val2
+}
+
+/*
+ * Function to perform unsigned addition
+ * Used only for setting Carry flag
+ */
+func UnsignedAdder(val1, val2 uint64) uint64 {
+	return val1 + val2
 }
