@@ -28,7 +28,7 @@ const INCREMENT int64 = 1
 
 func (instructionMemory *InstructionMemory) updatePC(offset ...int64) {
 	if len(offset) == 0 {
-		instructionMemory.PC += INCREMENT;
+		instructionMemory.PC += INCREMENT
 	} else {
 		instructionMemory.PC += offset[0]
 	}
@@ -103,16 +103,6 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 	} else if strings.HasPrefix(currentInstruction, "STUR ") {
 
 		currentInstructionObject := StoreInstruction{inst: currentInstruction}
-		err = executeInstruction(&currentInstructionObject)
-
-	} else if strings.HasPrefix(currentInstruction, "LDURSW ") {
-
-		currentInstructionObject := LoadWordInstruction{inst: currentInstruction}
-		err = executeInstruction(&currentInstructionObject)
-
-	} else if strings.HasPrefix(currentInstruction, "STURW ") {
-
-		currentInstructionObject := StoreWordInstruction{inst: currentInstruction}
 		err = executeInstruction(&currentInstructionObject)
 
 	} else if strings.HasPrefix(currentInstruction, "LDURH ") {
@@ -581,9 +571,9 @@ func (instruction *SubImmediateAndSetFlagsInstruction) execute() {
 
 /*
  * INSTRUCTION : LOAD
- * Example : LDUR X1, [X2, 40]
+ * Example : LDUR X1, [X2, #40]
  * Meaning : X1 = Memory[X2 + 40]
- * Comments : Doubleword from memory to register
+ * Comments : Word from memory to register
  */
 
 type LoadInstruction struct {
@@ -599,14 +589,17 @@ func (instruction *LoadInstruction) checkSyntax() bool {
 }
 
 func (instruction *LoadInstruction) execute() {
-
+	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset)) / 4
+	memoryValue := dataMemory.read(uint64(memoryIndex))
+	setRegisterValue(instruction.reg1, int64(memoryValue))
+	InstructionMem.updatePC()
 }
 
 /*
  * INSTRUCTION : STORE
- * Example : STUR X1, [X2, 40]
+ * Example : STUR X1, [X2, #40]
  * Meaning : Memory[X2 + 40] = X1
- * Comments : Doubleword from register to memory
+ * Comments : Word from register to memory
  */
 
 type StoreInstruction struct {
@@ -622,56 +615,7 @@ func (instruction *StoreInstruction) checkSyntax() bool {
 }
 
 func (instruction *StoreInstruction) execute() {
-
-}
-
-/*
- * INSTRUCTION : LOAD WORD
- * Example : LDURSW X1, [X2, 40]
- * Meaning : X1 = Memory[X2 + 40]
- * Comments : Word from memory to register
- */
-
-type LoadWordInstruction struct {
-	inst   string
-	reg1   uint
-	reg2   uint
-	offset uint
-}
-
-func (instruction *LoadWordInstruction) checkSyntax() bool {
-
-	return true
-}
-
-func (instruction *LoadWordInstruction) execute() {
-	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
-	memoryValue := dataMemory.read(uint64(memoryIndex))
-	setRegisterValue(instruction.reg1, int64(memoryValue))
-	InstructionMem.updatePC()
-}
-
-/*
- * INSTRUCTION : STORE WORD
- * Example : STURW X1, [X2, 40]
- * Meaning : Memory[X2 + 40] = X1
- * Comments : Word from register to memory
- */
-
-type StoreWordInstruction struct {
-	inst   string
-	reg1   uint
-	reg2   uint
-	offset uint
-}
-
-func (instruction *StoreWordInstruction) checkSyntax() bool {
-
-	return true
-}
-
-func (instruction *StoreWordInstruction) execute() {
-	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
+	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset)) / 4
 	registerValue := getRegisterValue(instruction.reg1)
 	dataMemory.write(uint64(memoryIndex), int32(registerValue))
 	InstructionMem.updatePC()
@@ -679,16 +623,16 @@ func (instruction *StoreWordInstruction) execute() {
 
 /*
  * INSTRUCTION : LOAD HALFWORD
- * Example : LDURH X1, [X2, 40]
+ * Example : LDURH X1, [X2, #40]
  * Meaning : X1 = Memory[X2 + 40]
  * Comments : Halfword from memory to register
  */
 
 type LoadHalfInstruction struct {
-	inst string
-	reg1 uint
-	reg2 uint
-	reg3 uint
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *LoadHalfInstruction) checkSyntax() bool {
@@ -697,21 +641,31 @@ func (instruction *LoadHalfInstruction) checkSyntax() bool {
 }
 
 func (instruction *LoadHalfInstruction) execute() {
-
+	var memoryValue int16
+	var shift uint = 16
+	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
+	if memoryIndex%4 == 0 {
+		// extract upper 16 bits
+		memoryValue = int16(dataMemory.read(uint64(memoryIndex/4)) >> shift)
+	} else {
+		// extract lower 16 bits
+		memoryValue = int16(dataMemory.read(uint64(memoryIndex / 4)))
+	}
+	setRegisterValue(instruction.reg1, int64(memoryValue))
 }
 
 /*
  * INSTRUCTION : STORE HALFWORD
- * Example : STURH X1, [X2, 40]
+ * Example : STURH X1, [X2, #40]
  * Meaning : Memory[X2 + 40] = X1
  * Comments : Halfword from register to memory
  */
 
 type StoreHalfInstruction struct {
-	inst string
-	reg1 uint
-	reg2 uint
-	reg3 uint
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *StoreHalfInstruction) checkSyntax() bool {
@@ -720,21 +674,35 @@ func (instruction *StoreHalfInstruction) checkSyntax() bool {
 }
 
 func (instruction *StoreHalfInstruction) execute() {
-
+	var registerValue int16
+	var shift uint = 16
+	registerValue = int16(getRegisterValue(instruction.reg1))
+	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
+	currentMemoryValue := dataMemory.read(uint64(memoryIndex / 4))
+	if memoryIndex%4 == 0 {
+		// store in upper 16 bits
+		currentMemoryValue = currentMemoryValue & ((1 << shift) - 1) // clear upper 16 bits
+		currentMemoryValue = currentMemoryValue | (int32(registerValue) << shift)
+	} else {
+		// store in lower 16 bits
+		currentMemoryValue = currentMemoryValue & -(1 << shift) // clear lower 16 bits
+		currentMemoryValue = currentMemoryValue | int32(registerValue)
+	}
+	dataMemory.write(uint64(memoryIndex/4), currentMemoryValue)
 }
 
 /*
  * INSTRUCTION : LOAD BYTE
- * Example : LDURB X1, [X2, 40]
+ * Example : LDURB X1, [X2, #40]
  * Meaning : X1 = Memory[X2 + 40]
  * Comments : Byte from memory to register
  */
 
 type LoadByteInstruction struct {
-	inst string
-	reg1 uint
-	reg2 uint
-	reg3 uint
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *LoadByteInstruction) checkSyntax() bool {
@@ -743,21 +711,37 @@ func (instruction *LoadByteInstruction) checkSyntax() bool {
 }
 
 func (instruction *LoadByteInstruction) execute() {
-
+	var registerValue int8
+	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
+	memoryValue := dataMemory.read(uint64(memoryIndex / 4))
+	if memoryIndex%4 == 0 {
+		// extract bits[31:24]
+		registerValue = int8(memoryValue >> 24)
+	} else if memoryIndex%4 == 1 {
+		// extract bits[23:16]
+		registerValue = int8(memoryValue >> 16)
+	} else if memoryIndex%4 == 2 {
+		// extract bits[15:8]
+		registerValue = int8(memoryValue >> 8)
+	} else {
+		// extract bit[7:0]
+		registerValue = int8(memoryValue)
+	}
+	setRegisterValue(instruction.reg1, int64(registerValue))
 }
 
 /*
  * INSTRUCTION : STORE BYTE
- * Example : STURB X1, [X2, 40]
+ * Example : STURB X1, [X2, #40]
  * Meaning : Memory[X2 + 40] = X1
  * Comments : Byte from register to memory
  */
 
 type StoreByteInstruction struct {
-	inst string
-	reg1 uint
-	reg2 uint
-	reg3 uint
+	inst   string
+	reg1   uint
+	reg2   uint
+	offset uint
 }
 
 func (instruction *StoreByteInstruction) checkSyntax() bool {
@@ -766,7 +750,36 @@ func (instruction *StoreByteInstruction) checkSyntax() bool {
 }
 
 func (instruction *StoreByteInstruction) execute() {
+	var registerValue int8
+	registerValue = int8(getRegisterValue(instruction.reg1))
+	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
+	currentMemoryValue := dataMemory.read(uint64(memoryIndex / 4))
+	if memoryIndex%4 == 0 {
 
+		// store in bits[31:24]
+		currentMemoryValue = currentMemoryValue & ((1 << 24) - 1) // clear bits[31:24]
+		currentMemoryValue = currentMemoryValue | (int32(registerValue) << 24)
+
+	} else if memoryIndex%4 == 1 {
+
+		// store in bits[23:16]
+		currentMemoryValue = currentMemoryValue & (((1 << 16) - 1) | -(1 << 24)) // clear bits[23:16]
+		currentMemoryValue = currentMemoryValue | int32(registerValue)
+
+	} else if memoryIndex%4 == 2 {
+
+		// store in bits[15:8]
+		currentMemoryValue = currentMemoryValue & (((1 << 8) - 1) | -(1 << 16)) // clear bits[15:8]
+		currentMemoryValue = currentMemoryValue | int32(registerValue)
+
+	} else {
+
+		// store in bits[7:0]
+		currentMemoryValue = currentMemoryValue & -(1 << 8) // clear bits[7:0]
+		currentMemoryValue = currentMemoryValue | int32(registerValue)
+
+	}
+	dataMemory.write(uint64(memoryIndex/4), currentMemoryValue)
 }
 
 /*
@@ -1163,7 +1176,7 @@ func (instruction *ConditionalBranchInstruction) execute() {
  */
 
 type BranchInstruction struct {
-	inst string
+	inst   string
 	offset int64
 }
 
@@ -1205,7 +1218,7 @@ func (instruction *BranchToRegisterInstruction) execute() {
  */
 
 type BranchWithLinkInstruction struct {
-	inst string
+	inst   string
 	offset int64
 }
 
@@ -1215,6 +1228,6 @@ func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchWithLinkInstruction) execute() {
-	setRegisterValue(30, InstructionMem.PC + INCREMENT)
+	setRegisterValue(30, InstructionMem.PC+INCREMENT)
 	InstructionMem.updatePC(instruction.offset)
 }
