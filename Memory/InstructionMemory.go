@@ -3,6 +3,7 @@ package memory
 import (
 	"errors"
 	ALU "github.com/coderick14/ARMed/ALU"
+	"regexp"
 	"strings"
 )
 
@@ -257,7 +258,10 @@ type AddInstruction struct {
 }
 
 func (instruction *AddInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^ADD X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -281,7 +285,10 @@ type SubInstruction struct {
 }
 
 func (instruction *SubInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^SUB X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -305,7 +312,10 @@ type AddImmediateInstruction struct {
 }
 
 func (instruction *AddImmediateInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^ADDI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -329,7 +339,10 @@ type SubImmediateInstruction struct {
 }
 
 func (instruction *SubImmediateInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^SUBI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -354,7 +367,10 @@ type AddAndSetFlagsInstruction struct {
 }
 
 func (instruction *AddAndSetFlagsInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^ADDS X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -412,7 +428,10 @@ type SubAndSetFlagsInstruction struct {
 }
 
 func (instruction *SubAndSetFlagsInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^SUBS X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -469,7 +488,10 @@ type AddImmediateAndSetFlagsInstruction struct {
 }
 
 func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^ADDIS X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -527,7 +549,10 @@ type SubImmediateAndSetFlagsInstruction struct {
 }
 
 func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^SUBIS X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -584,7 +609,10 @@ type LoadInstruction struct {
 }
 
 func (instruction *LoadInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^LDUR X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -610,7 +638,10 @@ type StoreInstruction struct {
 }
 
 func (instruction *StoreInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^STUR X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -636,7 +667,10 @@ type LoadHalfInstruction struct {
 }
 
 func (instruction *LoadHalfInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^LDURH X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -669,7 +703,10 @@ type StoreHalfInstruction struct {
 }
 
 func (instruction *StoreHalfInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^STURH X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -706,7 +743,10 @@ type LoadByteInstruction struct {
 }
 
 func (instruction *LoadByteInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^LDURB X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -745,7 +785,10 @@ type StoreByteInstruction struct {
 }
 
 func (instruction *StoreByteInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^STURB X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -784,7 +827,7 @@ func (instruction *StoreByteInstruction) execute() {
 
 /*
  * INSTRUCTION : LOAD EXCLUSIVE REGISTER
- * Example : LDXR X1, [X2, 0]
+ * Example : LDXR X1, [X2, #0]
  * Meaning : X1 = Memory[X2]
  * Comments : Load; first half of atomic swap
  */
@@ -796,7 +839,10 @@ type LoadExclusiveInstruction struct {
 }
 
 func (instruction *LoadExclusiveInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^LDXR X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -806,7 +852,7 @@ func (instruction *LoadExclusiveInstruction) execute() {
 
 /*
  * INSTRUCTION : STORE EXCLUSIVE REGISTER
- * Example : STXR X1, X3, [X2]
+ * Example : STXR X1, X3, [X2, #0]
  * Meaning : Memory[X2] = X1; X3 = 0 or 1
  * Comments : Store; second half of atomic swap
  */
@@ -819,7 +865,10 @@ type StoreExclusiveInstruction struct {
 }
 
 func (instruction *StoreExclusiveInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^STXR X([0-9]|1[0-9]|2[0-7]), X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -842,7 +891,10 @@ type MoveWithZeroInstruction struct {
 }
 
 func (instruction *MoveWithZeroInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^MOVZ X([0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*), LSL (0|1|2|3)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -869,7 +921,10 @@ type MoveWithKeepInstruction struct {
 }
 
 func (instruction *MoveWithKeepInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^MOVK X([0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*), LSL (0|1|2|3)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -909,7 +964,10 @@ type AndInstruction struct {
 }
 
 func (instruction *AndInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^AND X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -934,7 +992,10 @@ type OrInstruction struct {
 }
 
 func (instruction *OrInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^ORR X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -959,7 +1020,10 @@ type ExclusiveOrInstruction struct {
 }
 
 func (instruction *ExclusiveOrInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^EOR X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -984,7 +1048,10 @@ type AndImmediateInstruction struct {
 }
 
 func (instruction *AndImmediateInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^ANDI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1009,7 +1076,10 @@ type OrImmediateInstruction struct {
 }
 
 func (instruction *OrImmediateInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^ORRI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1034,7 +1104,10 @@ type ExclusiveOrImmediateInstruction struct {
 }
 
 func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^EORI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1059,7 +1132,10 @@ type LeftShiftInstruction struct {
 }
 
 func (instruction *LeftShiftInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^LSL X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1084,7 +1160,10 @@ type RightShiftInstruction struct {
 }
 
 func (instruction *RightShiftInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^LSR X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1108,7 +1187,10 @@ type BranchOnZeroInstruction struct {
 }
 
 func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^CBZ X([0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1134,7 +1216,10 @@ type BranchOnNonZeroInstruction struct {
 }
 
 func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^CBNZ X([0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1160,7 +1245,10 @@ type ConditionalBranchInstruction struct {
 }
 
 func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^B\\.(EQ|NE|LT|LE|GT|GE|LO|LS|HI|HS) (0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1181,7 +1269,10 @@ type BranchInstruction struct {
 }
 
 func (instruction *BranchInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^B (0|[1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1202,7 +1293,10 @@ type BranchToRegisterInstruction struct {
 }
 
 func (instruction *BranchToRegisterInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^BR X([0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
@@ -1223,7 +1317,10 @@ type BranchWithLinkInstruction struct {
 }
 
 func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
-
+	r, _ := regexp.Compile("^BL ([1-9][0-9]*)$")
+	if r.MatchString(instruction.inst) == false {
+		return false
+	}
 	return true
 }
 
