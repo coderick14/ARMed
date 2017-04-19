@@ -1187,7 +1187,7 @@ type BranchOnZeroInstruction struct {
 }
 
 func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^CBZ X([0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*)$")
+	r, _ := regexp.Compile("^CBZ X([0-9]|1[0-9]|2[0-7]), ([1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -1216,7 +1216,7 @@ type BranchOnNonZeroInstruction struct {
 }
 
 func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^CBNZ X([0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*)$")
+	r, _ := regexp.Compile("^CBNZ X([0-9]|1[0-9]|2[0-7]), ([1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -1239,13 +1239,13 @@ func (instruction *BranchOnNonZeroInstruction) execute() {
  */
 
 type ConditionalBranchInstruction struct {
-	inst string
-	reg1 uint
-	reg2 uint
+	inst      string
+	offset    int64
+	condition string
 }
 
 func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^B\\.(EQ|NE|LT|LE|GT|GE|LO|LS|HI|HS) (0|[1-9][0-9]*)$")
+	r, _ := regexp.Compile("^B\\.(EQ|NE|LT|LE|GT|GE|LO|LS|HI|HS) ([1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -1253,7 +1253,37 @@ func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
 }
 
 func (instruction *ConditionalBranchInstruction) execute() {
+	is_branching := false
+	switch instruction.condition {
 
+	case "EQ":
+		is_branching = flagZero
+	case "NE":
+		is_branching = !flagZero
+	case "LT":
+		is_branching = (flagNegative != flagOverflow)
+	case "LE":
+		is_branching = !(flagZero == false && flagNegative == flagOverflow)
+	case "GT":
+		is_branching = (flagZero == false && flagNegative == flagOverflow)
+	case "GE":
+		is_branching = (flagNegative == flagOverflow)
+	case "LO":
+		is_branching = !flagCarry
+	case "LS":
+		is_branching = !(flagZero == false && flagCarry == true)
+	case "HI":
+		is_branching = (flagZero == false && flagCarry == true)
+	case "HS":
+		is_branching = flagCarry
+
+	}
+
+	if is_branching {
+		InstructionMem.updatePC(instruction.offset)
+	} else {
+		InstructionMem.updatePC()
+	}
 }
 
 /*
@@ -1269,7 +1299,7 @@ type BranchInstruction struct {
 }
 
 func (instruction *BranchInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^B (0|[1-9][0-9]*)$")
+	r, _ := regexp.Compile("^B ([1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
