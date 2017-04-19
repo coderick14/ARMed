@@ -231,12 +231,14 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 
 type Instruction interface {
 	checkSyntax() bool
+	parse()
 	execute()
 }
 
 func executeInstruction(currentInstruction Instruction) error {
 	isSyntaxOK := currentInstruction.checkSyntax()
 	if isSyntaxOK {
+		currentInstruction.parse()
 		currentInstruction.execute()
 	} else {
 		return errors.New("Syntax error occured")
@@ -263,6 +265,10 @@ func (instruction *AddInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *AddInstruction) parse() {
+
 }
 
 func (instruction *AddInstruction) execute() {
@@ -292,6 +298,10 @@ func (instruction *SubInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *SubInstruction) parse() {
+
+}
+
 func (instruction *SubInstruction) execute() {
 	result := ALU.Adder(getRegisterValue(instruction.reg2), -getRegisterValue(instruction.reg3))
 	setRegisterValue(instruction.reg1, result)
@@ -317,6 +327,10 @@ func (instruction *AddImmediateInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *AddImmediateInstruction) parse() {
+
 }
 
 func (instruction *AddImmediateInstruction) execute() {
@@ -346,6 +360,10 @@ func (instruction *SubImmediateInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *SubImmediateInstruction) parse() {
+
+}
+
 func (instruction *SubImmediateInstruction) execute() {
 	result := ALU.Adder(getRegisterValue(instruction.reg2), -int64(instruction.constant))
 	setRegisterValue(instruction.reg1, result)
@@ -372,6 +390,10 @@ func (instruction *AddAndSetFlagsInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *AddAndSetFlagsInstruction) parse() {
+
 }
 
 func (instruction *AddAndSetFlagsInstruction) execute() {
@@ -435,6 +457,10 @@ func (instruction *SubAndSetFlagsInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *SubAndSetFlagsInstruction) parse() {
+
+}
+
 func (instruction *SubAndSetFlagsInstruction) execute() {
 	result := ALU.Adder(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
 	setRegisterValue(instruction.reg1, result)
@@ -493,6 +519,10 @@ func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *AddImmediateAndSetFlagsInstruction) parse() {
+
 }
 
 func (instruction *AddImmediateAndSetFlagsInstruction) execute() {
@@ -556,6 +586,10 @@ func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *SubImmediateAndSetFlagsInstruction) parse() {
+
+}
+
 func (instruction *SubImmediateAndSetFlagsInstruction) execute() {
 	result := ALU.Adder(getRegisterValue(instruction.reg2), -int64(instruction.constant))
 	setRegisterValue(instruction.reg1, result)
@@ -616,6 +650,10 @@ func (instruction *LoadInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *LoadInstruction) parse() {
+
+}
+
 func (instruction *LoadInstruction) execute() {
 	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset)) / 4
 	memoryValue := dataMemory.read(uint64(memoryIndex))
@@ -645,6 +683,10 @@ func (instruction *StoreInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *StoreInstruction) parse() {
+
+}
+
 func (instruction *StoreInstruction) execute() {
 	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset)) / 4
 	registerValue := getRegisterValue(instruction.reg1)
@@ -672,6 +714,10 @@ func (instruction *LoadHalfInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *LoadHalfInstruction) parse() {
+
 }
 
 func (instruction *LoadHalfInstruction) execute() {
@@ -708,6 +754,10 @@ func (instruction *StoreHalfInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *StoreHalfInstruction) parse() {
+
 }
 
 func (instruction *StoreHalfInstruction) execute() {
@@ -750,6 +800,10 @@ func (instruction *LoadByteInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *LoadByteInstruction) parse() {
+
+}
+
 func (instruction *LoadByteInstruction) execute() {
 	var registerValue int8
 	memoryIndex := ALU.Adder(getRegisterValue(instruction.reg2), int64(instruction.offset))
@@ -790,6 +844,10 @@ func (instruction *StoreByteInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *StoreByteInstruction) parse() {
+
 }
 
 func (instruction *StoreByteInstruction) execute() {
@@ -846,6 +904,10 @@ func (instruction *LoadExclusiveInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *LoadExclusiveInstruction) parse() {
+
+}
+
 func (instruction *LoadExclusiveInstruction) execute() {
 
 }
@@ -872,6 +934,10 @@ func (instruction *StoreExclusiveInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *StoreExclusiveInstruction) parse() {
+
+}
+
 func (instruction *StoreExclusiveInstruction) execute() {
 
 }
@@ -896,6 +962,10 @@ func (instruction *MoveWithZeroInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *MoveWithZeroInstruction) parse() {
+
 }
 
 func (instruction *MoveWithZeroInstruction) execute() {
@@ -926,6 +996,10 @@ func (instruction *MoveWithKeepInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *MoveWithKeepInstruction) parse() {
+
 }
 
 func (instruction *MoveWithKeepInstruction) execute() {
@@ -971,6 +1045,10 @@ func (instruction *AndInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *AndInstruction) parse() {
+
+}
+
 func (instruction *AndInstruction) execute() {
 	result := ALU.LogicalAND(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
 	setRegisterValue(instruction.reg1, result)
@@ -997,6 +1075,10 @@ func (instruction *OrInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *OrInstruction) parse() {
+
 }
 
 func (instruction *OrInstruction) execute() {
@@ -1027,6 +1109,10 @@ func (instruction *ExclusiveOrInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *ExclusiveOrInstruction) parse() {
+
+}
+
 func (instruction *ExclusiveOrInstruction) execute() {
 	result := ALU.LogicalXOR(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
 	setRegisterValue(instruction.reg1, result)
@@ -1053,6 +1139,10 @@ func (instruction *AndImmediateInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *AndImmediateInstruction) parse() {
+
 }
 
 func (instruction *AndImmediateInstruction) execute() {
@@ -1083,6 +1173,10 @@ func (instruction *OrImmediateInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *OrImmediateInstruction) parse() {
+
+}
+
 func (instruction *OrImmediateInstruction) execute() {
 	result := ALU.LogicalOR(getRegisterValue(instruction.reg2), int64(instruction.constant))
 	setRegisterValue(instruction.reg1, result)
@@ -1109,6 +1203,10 @@ func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *ExclusiveOrImmediateInstruction) parse() {
+
 }
 
 func (instruction *ExclusiveOrImmediateInstruction) execute() {
@@ -1139,6 +1237,10 @@ func (instruction *LeftShiftInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *LeftShiftInstruction) parse() {
+
+}
+
 func (instruction *LeftShiftInstruction) execute() {
 	result := getRegisterValue(instruction.reg2) << instruction.offset
 	setRegisterValue(instruction.reg1, result)
@@ -1167,6 +1269,10 @@ func (instruction *RightShiftInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *RightShiftInstruction) parse() {
+
+}
+
 func (instruction *RightShiftInstruction) execute() {
 	result := getRegisterValue(instruction.reg2) >> instruction.offset
 	setRegisterValue(instruction.reg1, result)
@@ -1192,6 +1298,10 @@ func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *BranchOnZeroInstruction) parse() {
+
 }
 
 func (instruction *BranchOnZeroInstruction) execute() {
@@ -1223,6 +1333,10 @@ func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *BranchOnNonZeroInstruction) parse() {
+
+}
+
 func (instruction *BranchOnNonZeroInstruction) execute() {
 	if getRegisterValue(instruction.reg1) != 0 {
 		InstructionMem.updatePC(instruction.offset)
@@ -1250,6 +1364,10 @@ func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *ConditionalBranchInstruction) parse() {
+
 }
 
 func (instruction *ConditionalBranchInstruction) execute() {
@@ -1306,6 +1424,10 @@ func (instruction *BranchInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *BranchInstruction) parse() {
+
+}
+
 func (instruction *BranchInstruction) execute() {
 	InstructionMem.updatePC(instruction.offset)
 }
@@ -1330,6 +1452,10 @@ func (instruction *BranchToRegisterInstruction) checkSyntax() bool {
 	return true
 }
 
+func (instruction *BranchToRegisterInstruction) parse() {
+
+}
+
 func (instruction *BranchToRegisterInstruction) execute() {
 
 }
@@ -1352,6 +1478,10 @@ func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
 		return false
 	}
 	return true
+}
+
+func (instruction *BranchWithLinkInstruction) parse() {
+
 }
 
 func (instruction *BranchWithLinkInstruction) execute() {
