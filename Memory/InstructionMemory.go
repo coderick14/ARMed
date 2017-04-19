@@ -4,6 +4,7 @@ import (
 	"errors"
 	ALU "github.com/coderick14/ARMed/ALU"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -268,7 +269,25 @@ func (instruction *AddInstruction) checkSyntax() bool {
 }
 
 func (instruction *AddInstruction) parse() {
-
+	statement := instruction.inst
+	var registers [3]int
+	var i, indexX, indexComma int
+	for i = 0; i < 3; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if indexComma == -1 {
+			indexComma = len(statement)
+		}
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.reg3 = uint(registers[2])
 }
 
 func (instruction *AddInstruction) execute() {
@@ -299,6 +318,25 @@ func (instruction *SubInstruction) checkSyntax() bool {
 }
 
 func (instruction *SubInstruction) parse() {
+	statement := instruction.inst
+	var registers [3]int
+	var i, indexX, indexComma int
+	for i = 0; i < 3; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if indexComma == -1 {
+			indexComma = len(statement)
+		}
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.reg3 = uint(registers[2])
 
 }
 
@@ -330,7 +368,25 @@ func (instruction *AddImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *AddImmediateInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	constant, _ := strconv.Atoi(statement[indexHash+1:])
 
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.constant = uint(constant)
 }
 
 func (instruction *AddImmediateInstruction) execute() {
@@ -361,6 +417,25 @@ func (instruction *SubImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *SubImmediateInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	constant, _ := strconv.Atoi(statement[indexHash+1:])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.constant = uint(constant)
 
 }
 
@@ -393,6 +468,25 @@ func (instruction *AddAndSetFlagsInstruction) checkSyntax() bool {
 }
 
 func (instruction *AddAndSetFlagsInstruction) parse() {
+	statement := instruction.inst
+	var registers [3]int
+	var i, indexX, indexComma int
+	for i = 0; i < 3; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if indexComma == -1 {
+			indexComma = len(statement)
+		}
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.reg3 = uint(registers[2])
 
 }
 
@@ -458,6 +552,25 @@ func (instruction *SubAndSetFlagsInstruction) checkSyntax() bool {
 }
 
 func (instruction *SubAndSetFlagsInstruction) parse() {
+	statement := instruction.inst
+	var registers [3]int
+	var i, indexX, indexComma int
+	for i = 0; i < 3; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if indexComma == -1 {
+			indexComma = len(statement)
+		}
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.reg3 = uint(registers[2])
 
 }
 
@@ -522,6 +635,25 @@ func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() bool {
 }
 
 func (instruction *AddImmediateAndSetFlagsInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	constant, _ := strconv.Atoi(statement[indexHash+1:])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.constant = uint(constant)
 
 }
 
@@ -587,6 +719,25 @@ func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() bool {
 }
 
 func (instruction *SubImmediateAndSetFlagsInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	constant, _ := strconv.Atoi(statement[indexHash+1:])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.constant = uint(constant)
 
 }
 
@@ -643,7 +794,7 @@ type LoadInstruction struct {
 }
 
 func (instruction *LoadInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^LDUR X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^LDUR X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -651,6 +802,22 @@ func (instruction *LoadInstruction) checkSyntax() bool {
 }
 
 func (instruction *LoadInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash, indexBracket, offset int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	indexBracket = strings.Index(statement, "]")
+	offset, _ = strconv.Atoi(statement[indexHash+1 : indexBracket])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.offset = uint(offset)
 
 }
 
@@ -676,7 +843,7 @@ type StoreInstruction struct {
 }
 
 func (instruction *StoreInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^STUR X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^STUR X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -684,6 +851,22 @@ func (instruction *StoreInstruction) checkSyntax() bool {
 }
 
 func (instruction *StoreInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash, indexBracket, offset int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	indexBracket = strings.Index(statement, "]")
+	offset, _ = strconv.Atoi(statement[indexHash+1 : indexBracket])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.offset = uint(offset)
 
 }
 
@@ -709,7 +892,7 @@ type LoadHalfInstruction struct {
 }
 
 func (instruction *LoadHalfInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^LDURH X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^LDURH X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -717,6 +900,22 @@ func (instruction *LoadHalfInstruction) checkSyntax() bool {
 }
 
 func (instruction *LoadHalfInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash, indexBracket, offset int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	indexBracket = strings.Index(statement, "]")
+	offset, _ = strconv.Atoi(statement[indexHash+1 : indexBracket])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.offset = uint(offset)
 
 }
 
@@ -749,7 +948,7 @@ type StoreHalfInstruction struct {
 }
 
 func (instruction *StoreHalfInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^STURH X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^STURH X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -757,6 +956,22 @@ func (instruction *StoreHalfInstruction) checkSyntax() bool {
 }
 
 func (instruction *StoreHalfInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash, indexBracket, offset int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	indexBracket = strings.Index(statement, "]")
+	offset, _ = strconv.Atoi(statement[indexHash+1 : indexBracket])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.offset = uint(offset)
 
 }
 
@@ -793,7 +1008,7 @@ type LoadByteInstruction struct {
 }
 
 func (instruction *LoadByteInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^LDURB X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^LDURB X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -801,6 +1016,22 @@ func (instruction *LoadByteInstruction) checkSyntax() bool {
 }
 
 func (instruction *LoadByteInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash, indexBracket, offset int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	indexBracket = strings.Index(statement, "]")
+	offset, _ = strconv.Atoi(statement[indexHash+1 : indexBracket])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.offset = uint(offset)
 
 }
 
@@ -839,7 +1070,7 @@ type StoreByteInstruction struct {
 }
 
 func (instruction *StoreByteInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^STURB X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^STURB X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -847,6 +1078,22 @@ func (instruction *StoreByteInstruction) checkSyntax() bool {
 }
 
 func (instruction *StoreByteInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash, indexBracket, offset int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	indexBracket = strings.Index(statement, "]")
+	offset, _ = strconv.Atoi(statement[indexHash+1 : indexBracket])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.offset = uint(offset)
 
 }
 
@@ -965,7 +1212,22 @@ func (instruction *MoveWithZeroInstruction) checkSyntax() bool {
 }
 
 func (instruction *MoveWithZeroInstruction) parse() {
+	statement := instruction.inst
+	var indexX, indexComma int
 
+	indexX = strings.Index(statement, "X")
+	indexComma = strings.Index(statement, ",")
+	register, _ := strconv.Atoi(statement[indexX+1 : indexComma])
+
+	statement = strings.TrimSpace(statement[indexComma+1:])
+	indexComma = strings.Index(statement, ",")
+	constant, _ := strconv.Atoi(statement[:indexComma])
+
+	offset := uint(statement[len(statement)-1] - '0')
+
+	instruction.reg1 = uint(register)
+	instruction.constant = uint16(constant)
+	instruction.offset = offset
 }
 
 func (instruction *MoveWithZeroInstruction) execute() {
@@ -999,6 +1261,22 @@ func (instruction *MoveWithKeepInstruction) checkSyntax() bool {
 }
 
 func (instruction *MoveWithKeepInstruction) parse() {
+	statement := instruction.inst
+	var indexX, indexComma int
+
+	indexX = strings.Index(statement, "X")
+	indexComma = strings.Index(statement, ",")
+	register, _ := strconv.Atoi(statement[indexX+1 : indexComma])
+
+	statement = strings.TrimSpace(statement[indexComma+1:])
+	indexComma = strings.Index(statement, ",")
+	constant, _ := strconv.Atoi(statement[:indexComma])
+
+	offset := uint(statement[len(statement)-1] - '0')
+
+	instruction.reg1 = uint(register)
+	instruction.constant = uint16(constant)
+	instruction.offset = offset
 
 }
 
@@ -1046,6 +1324,25 @@ func (instruction *AndInstruction) checkSyntax() bool {
 }
 
 func (instruction *AndInstruction) parse() {
+	statement := instruction.inst
+	var registers [3]int
+	var i, indexX, indexComma int
+	for i = 0; i < 3; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if indexComma == -1 {
+			indexComma = len(statement)
+		}
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.reg3 = uint(registers[2])
 
 }
 
@@ -1078,6 +1375,25 @@ func (instruction *OrInstruction) checkSyntax() bool {
 }
 
 func (instruction *OrInstruction) parse() {
+	statement := instruction.inst
+	var registers [3]int
+	var i, indexX, indexComma int
+	for i = 0; i < 3; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if indexComma == -1 {
+			indexComma = len(statement)
+		}
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.reg3 = uint(registers[2])
 
 }
 
@@ -1110,6 +1426,25 @@ func (instruction *ExclusiveOrInstruction) checkSyntax() bool {
 }
 
 func (instruction *ExclusiveOrInstruction) parse() {
+	statement := instruction.inst
+	var registers [3]int
+	var i, indexX, indexComma int
+	for i = 0; i < 3; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if indexComma == -1 {
+			indexComma = len(statement)
+		}
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.reg3 = uint(registers[2])
 
 }
 
@@ -1121,7 +1456,7 @@ func (instruction *ExclusiveOrInstruction) execute() {
 
 /*
  * INSTRUCTION : LOGICAL AND IMMEDIATE
- * Example : ANDI X1, X2, 20
+ * Example : ANDI X1, X2, #20
  * Meaning : X1 = X2 & 20
  * Comments : Bitwise-And of X2 with a constant, stores result in X1
  */
@@ -1142,6 +1477,25 @@ func (instruction *AndImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *AndImmediateInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	constant, _ := strconv.Atoi(statement[indexHash+1:])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.constant = uint(constant)
 
 }
 
@@ -1153,7 +1507,7 @@ func (instruction *AndImmediateInstruction) execute() {
 
 /*
  * INSTRUCTION : LOGICAL OR IMMEDIATE
- * Example : ORRI X1, X2, 20
+ * Example : ORRI X1, X2, #20
  * Meaning : X1 = X2 | 20
  * Comments : Bitwise-Or of X2 with a constant, stores result in X1
  */
@@ -1174,6 +1528,25 @@ func (instruction *OrImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *OrImmediateInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	constant, _ := strconv.Atoi(statement[indexHash+1:])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.constant = uint(constant)
 
 }
 
@@ -1185,7 +1558,7 @@ func (instruction *OrImmediateInstruction) execute() {
 
 /*
  * INSTRUCTION : LOGICAL EXCLUSIVE-OR IMMEDIATE
- * Example : EORI X1, X2, 20
+ * Example : EORI X1, X2, #20
  * Meaning : X1 = X2 ^ 20
  * Comments : Bitwise-Xor of X2 with a constant, stores result in X1
  */
@@ -1206,6 +1579,25 @@ func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() bool {
 }
 
 func (instruction *ExclusiveOrImmediateInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma, indexHash int
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	indexHash = strings.Index(statement, "#")
+	constant, _ := strconv.Atoi(statement[indexHash+1:])
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.constant = uint(constant)
 
 }
 
@@ -1238,7 +1630,26 @@ func (instruction *LeftShiftInstruction) checkSyntax() bool {
 }
 
 func (instruction *LeftShiftInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma int
 
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	statement = strings.TrimSpace(statement[indexComma+1:])
+	offset, _ := strconv.Atoi(statement)
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.offset = uint(offset)
 }
 
 func (instruction *LeftShiftInstruction) execute() {
@@ -1270,7 +1681,26 @@ func (instruction *RightShiftInstruction) checkSyntax() bool {
 }
 
 func (instruction *RightShiftInstruction) parse() {
+	statement := instruction.inst
+	var registers [2]int
+	var i, indexX, indexComma int
 
+	for i = 0; i < 2; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = 31
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		statement = statement[indexComma+1:]
+	}
+	statement = strings.TrimSpace(statement[indexComma+1:])
+	offset, _ := strconv.Atoi(statement)
+
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.offset = uint(offset)
 }
 
 func (instruction *RightShiftInstruction) execute() {
