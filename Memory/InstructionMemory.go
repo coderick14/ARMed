@@ -1609,7 +1609,7 @@ func (instruction *ExclusiveOrImmediateInstruction) execute() {
 
 /*
  * INSTRUCTION : LOGICAL LEFT SHIFT
- * Example : LSL X1, X2, 10
+ * Example : LSL X1, X2, #10
  * Meaning : X1 = X2 << 10
  * Comments : Left shifts X2 by a constant, stores result in X1
  */
@@ -1632,8 +1632,7 @@ func (instruction *LeftShiftInstruction) checkSyntax() bool {
 func (instruction *LeftShiftInstruction) parse() {
 	statement := instruction.inst
 	var registers [2]int
-	var i, indexX, indexComma int
-
+	var i, indexX, indexComma, indexHash int
 	for i = 0; i < 2; i++ {
 		indexX = strings.Index(statement, "X")
 		indexComma = strings.Index(statement, ",")
@@ -1644,8 +1643,8 @@ func (instruction *LeftShiftInstruction) parse() {
 		}
 		statement = statement[indexComma+1:]
 	}
-	statement = strings.TrimSpace(statement[indexComma+1:])
-	offset, _ := strconv.Atoi(statement)
+	indexHash = strings.Index(statement, "#")
+	offset, _ := strconv.Atoi(statement[indexHash+1:])
 
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
@@ -1660,7 +1659,7 @@ func (instruction *LeftShiftInstruction) execute() {
 
 /*
  * INSTRUCTION : LOGICAL RIGHT SHIFT
- * Example : LSR X1, X2, 10
+ * Example : LSR X1, X2, #10
  * Meaning : X1 = X2 >> 10
  * Comments : Right shifts X2 by a constant, stores result in X1
  */
@@ -1683,8 +1682,7 @@ func (instruction *RightShiftInstruction) checkSyntax() bool {
 func (instruction *RightShiftInstruction) parse() {
 	statement := instruction.inst
 	var registers [2]int
-	var i, indexX, indexComma int
-
+	var i, indexX, indexComma, indexHash int
 	for i = 0; i < 2; i++ {
 		indexX = strings.Index(statement, "X")
 		indexComma = strings.Index(statement, ",")
@@ -1695,8 +1693,8 @@ func (instruction *RightShiftInstruction) parse() {
 		}
 		statement = statement[indexComma+1:]
 	}
-	statement = strings.TrimSpace(statement[indexComma+1:])
-	offset, _ := strconv.Atoi(statement)
+	indexHash = strings.Index(statement, "#")
+	offset, _ := strconv.Atoi(statement[indexHash+1:])
 
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
