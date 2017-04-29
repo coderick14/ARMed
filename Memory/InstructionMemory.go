@@ -232,7 +232,7 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 
 	} else {
 
-		err = errors.New("Invalid instruction type on line number " + string(instructionMemory.PC+1))
+		err = errors.New("Invalid instruction type in " + currentInstruction)
 
 	}
 

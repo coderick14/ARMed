@@ -56,7 +56,7 @@ func main() {
 			fmt.Println("Error while reading file : ", err)
 			return
 		}
-		line = strings.TrimSpace(line)
+		line = strings.TrimSpace(strings.TrimRight(line, ";"))
 		Memory.InstructionMem.Instructions = append(Memory.InstructionMem.Instructions, line)
 	}
 
