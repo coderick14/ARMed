@@ -299,7 +299,9 @@ func (instruction *AddInstruction) parse() error {
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
-		statement = statement[indexComma+1:]
+		if indexComma < len(statement) {
+			statement = statement[indexComma+1:]
+		}
 	}
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
@@ -350,7 +352,9 @@ func (instruction *SubInstruction) parse() error {
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
-		statement = statement[indexComma+1:]
+		if indexComma < len(statement) {
+			statement = statement[indexComma+1:]
+		}
 	}
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
@@ -504,7 +508,9 @@ func (instruction *AddAndSetFlagsInstruction) parse() error {
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
-		statement = statement[indexComma+1:]
+		if indexComma < len(statement) {
+			statement = statement[indexComma+1:]
+		}
 	}
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
@@ -589,7 +595,9 @@ func (instruction *SubAndSetFlagsInstruction) parse() error {
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
-		statement = statement[indexComma+1:]
+		if indexComma < len(statement) {
+			statement = statement[indexComma+1:]
+		}
 	}
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
@@ -1375,7 +1383,9 @@ func (instruction *AndInstruction) parse() error {
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
-		statement = statement[indexComma+1:]
+		if indexComma < len(statement) {
+			statement = statement[indexComma+1:]
+		}
 	}
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
@@ -1427,7 +1437,9 @@ func (instruction *OrInstruction) parse() error {
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
-		statement = statement[indexComma+1:]
+		if indexComma < len(statement) {
+			statement = statement[indexComma+1:]
+		}
 	}
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
@@ -1479,7 +1491,9 @@ func (instruction *ExclusiveOrInstruction) parse() error {
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
-		statement = statement[indexComma+1:]
+		if indexComma < len(statement) {
+			statement = statement[indexComma+1:]
+		}
 	}
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
