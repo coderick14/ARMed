@@ -244,21 +244,21 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
  */
 
 type Instruction interface {
-	checkSyntax() bool
+	checkSyntax() error
 	parse() error
 	execute()
 }
 
 func executeInstruction(currentInstruction Instruction) error {
-	isSyntaxOK := currentInstruction.checkSyntax()
-	if isSyntaxOK {
+	syntaxError := currentInstruction.checkSyntax()
+	if syntaxError != nil {
+		return syntaxError
+	} else {
 		parseError := currentInstruction.parse()
 		if parseError != nil {
 			return parseError
 		}
 		currentInstruction.execute()
-	} else {
-		return errors.New("Syntax error occured")
 	}
 	return nil
 }
@@ -276,12 +276,12 @@ type AddInstruction struct {
 	reg3 uint
 }
 
-func (instruction *AddInstruction) checkSyntax() bool {
+func (instruction *AddInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^ADD X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *AddInstruction) parse() error {
@@ -327,12 +327,12 @@ type SubInstruction struct {
 	reg3 uint
 }
 
-func (instruction *SubInstruction) checkSyntax() bool {
+func (instruction *SubInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^SUB X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *SubInstruction) parse() error {
@@ -378,12 +378,12 @@ type AddImmediateInstruction struct {
 	constant uint
 }
 
-func (instruction *AddImmediateInstruction) checkSyntax() bool {
+func (instruction *AddImmediateInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^ADDI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *AddImmediateInstruction) parse() error {
@@ -429,12 +429,12 @@ type SubImmediateInstruction struct {
 	constant uint
 }
 
-func (instruction *SubImmediateInstruction) checkSyntax() bool {
+func (instruction *SubImmediateInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^SUBI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *SubImmediateInstruction) parse() error {
@@ -481,12 +481,12 @@ type AddAndSetFlagsInstruction struct {
 	reg3 uint
 }
 
-func (instruction *AddAndSetFlagsInstruction) checkSyntax() bool {
+func (instruction *AddAndSetFlagsInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^ADDS X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *AddAndSetFlagsInstruction) parse() error {
@@ -566,12 +566,12 @@ type SubAndSetFlagsInstruction struct {
 	reg3 uint
 }
 
-func (instruction *SubAndSetFlagsInstruction) checkSyntax() bool {
+func (instruction *SubAndSetFlagsInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^SUBS X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *SubAndSetFlagsInstruction) parse() error {
@@ -650,12 +650,12 @@ type AddImmediateAndSetFlagsInstruction struct {
 	constant uint
 }
 
-func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() bool {
+func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^ADDIS X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *AddImmediateAndSetFlagsInstruction) parse() error {
@@ -735,12 +735,12 @@ type SubImmediateAndSetFlagsInstruction struct {
 	constant uint
 }
 
-func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() bool {
+func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^SUBIS X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *SubImmediateAndSetFlagsInstruction) parse() error {
@@ -819,12 +819,12 @@ type LoadInstruction struct {
 	offset uint
 }
 
-func (instruction *LoadInstruction) checkSyntax() bool {
+func (instruction *LoadInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^LDUR X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *LoadInstruction) parse() error {
@@ -869,12 +869,12 @@ type StoreInstruction struct {
 	offset uint
 }
 
-func (instruction *StoreInstruction) checkSyntax() bool {
+func (instruction *StoreInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^STUR X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *StoreInstruction) parse() error {
@@ -919,12 +919,12 @@ type LoadHalfInstruction struct {
 	offset uint
 }
 
-func (instruction *LoadHalfInstruction) checkSyntax() bool {
+func (instruction *LoadHalfInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^LDURH X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *LoadHalfInstruction) parse() error {
@@ -976,12 +976,12 @@ type StoreHalfInstruction struct {
 	offset uint
 }
 
-func (instruction *StoreHalfInstruction) checkSyntax() bool {
+func (instruction *StoreHalfInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^STURH X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *StoreHalfInstruction) parse() error {
@@ -1037,12 +1037,12 @@ type LoadByteInstruction struct {
 	offset uint
 }
 
-func (instruction *LoadByteInstruction) checkSyntax() bool {
+func (instruction *LoadByteInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^LDURB X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *LoadByteInstruction) parse() error {
@@ -1100,12 +1100,12 @@ type StoreByteInstruction struct {
 	offset uint
 }
 
-func (instruction *StoreByteInstruction) checkSyntax() bool {
+func (instruction *StoreByteInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^STURB X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *StoreByteInstruction) parse() error {
@@ -1175,12 +1175,12 @@ type LoadExclusiveInstruction struct {
 	reg2 uint
 }
 
-func (instruction *LoadExclusiveInstruction) checkSyntax() bool {
+func (instruction *LoadExclusiveInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^LDXR X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *LoadExclusiveInstruction) parse() error {
@@ -1206,12 +1206,12 @@ type StoreExclusiveInstruction struct {
 	reg3 uint
 }
 
-func (instruction *StoreExclusiveInstruction) checkSyntax() bool {
+func (instruction *StoreExclusiveInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^STXR X([0-9]|1[0-9]|2[0-7]), X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *StoreExclusiveInstruction) parse() error {
@@ -1237,12 +1237,12 @@ type MoveWithZeroInstruction struct {
 	offset   uint
 }
 
-func (instruction *MoveWithZeroInstruction) checkSyntax() bool {
+func (instruction *MoveWithZeroInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^MOVZ X([0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*), LSL (0|1|2|3)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *MoveWithZeroInstruction) parse() error {
@@ -1288,12 +1288,12 @@ type MoveWithKeepInstruction struct {
 	offset   uint
 }
 
-func (instruction *MoveWithKeepInstruction) checkSyntax() bool {
+func (instruction *MoveWithKeepInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^MOVK X([0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*), LSL (0|1|2|3)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *MoveWithKeepInstruction) parse() error {
@@ -1352,12 +1352,12 @@ type AndInstruction struct {
 	reg3 uint
 }
 
-func (instruction *AndInstruction) checkSyntax() bool {
+func (instruction *AndInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^AND X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *AndInstruction) parse() error {
@@ -1404,12 +1404,12 @@ type OrInstruction struct {
 	reg3 uint
 }
 
-func (instruction *OrInstruction) checkSyntax() bool {
+func (instruction *OrInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^ORR X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *OrInstruction) parse() error {
@@ -1456,12 +1456,12 @@ type ExclusiveOrInstruction struct {
 	reg3 uint
 }
 
-func (instruction *ExclusiveOrInstruction) checkSyntax() bool {
+func (instruction *ExclusiveOrInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^EOR X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *ExclusiveOrInstruction) parse() error {
@@ -1508,12 +1508,12 @@ type AndImmediateInstruction struct {
 	constant uint
 }
 
-func (instruction *AndImmediateInstruction) checkSyntax() bool {
+func (instruction *AndImmediateInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^ANDI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *AndImmediateInstruction) parse() error {
@@ -1560,12 +1560,12 @@ type OrImmediateInstruction struct {
 	constant uint
 }
 
-func (instruction *OrImmediateInstruction) checkSyntax() bool {
+func (instruction *OrImmediateInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^ORRI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *OrImmediateInstruction) parse() error {
@@ -1612,12 +1612,12 @@ type ExclusiveOrImmediateInstruction struct {
 	constant uint
 }
 
-func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() bool {
+func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^EORI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *ExclusiveOrImmediateInstruction) parse() error {
@@ -1664,12 +1664,12 @@ type LeftShiftInstruction struct {
 	offset uint
 }
 
-func (instruction *LeftShiftInstruction) checkSyntax() bool {
+func (instruction *LeftShiftInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^LSL X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *LeftShiftInstruction) parse() error {
@@ -1716,12 +1716,12 @@ type RightShiftInstruction struct {
 	offset uint
 }
 
-func (instruction *RightShiftInstruction) checkSyntax() bool {
+func (instruction *RightShiftInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^LSR X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), (0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *RightShiftInstruction) parse() error {
@@ -1767,12 +1767,12 @@ type BranchOnZeroInstruction struct {
 	offset int64
 }
 
-func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
+func (instruction *BranchOnZeroInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^CBZ X([0-9]|1[0-9]|2[0-7]), ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *BranchOnZeroInstruction) parse() error {
@@ -1782,8 +1782,8 @@ func (instruction *BranchOnZeroInstruction) parse() error {
 	indexX = strings.Index(statement, "X")
 	indexComma = strings.Index(statement, ",")
 
-	register, _ := strconv.Atoi(statement[indexX +1 : indexComma])
-	labelName := strings.TrimSpace(statement[indexComma + 1:])
+	register, _ := strconv.Atoi(statement[indexX+1 : indexComma])
+	labelName := strings.TrimSpace(statement[indexComma+1:])
 	labelPC, isValidLabel := InstructionMem.Labels[labelName]
 
 	if !isValidLabel {
@@ -1817,12 +1817,12 @@ type BranchOnNonZeroInstruction struct {
 	offset int64
 }
 
-func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
+func (instruction *BranchOnNonZeroInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^CBNZ X([0-9]|1[0-9]|2[0-7]), ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *BranchOnNonZeroInstruction) parse() error {
@@ -1832,8 +1832,8 @@ func (instruction *BranchOnNonZeroInstruction) parse() error {
 	indexX = strings.Index(statement, "X")
 	indexComma = strings.Index(statement, ",")
 
-	register, _ := strconv.Atoi(statement[indexX +1 : indexComma])
-	labelName := strings.TrimSpace(statement[indexComma + 1:])
+	register, _ := strconv.Atoi(statement[indexX+1 : indexComma])
+	labelName := strings.TrimSpace(statement[indexComma+1:])
 	labelPC, isValidLabel := InstructionMem.Labels[labelName]
 
 	if !isValidLabel {
@@ -1867,17 +1867,17 @@ type ConditionalBranchInstruction struct {
 	condition string
 }
 
-func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
+func (instruction *ConditionalBranchInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^B\\.(EQ|NE|LT|LE|GT|GE|LO|LS|HI|HS) ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *ConditionalBranchInstruction) parse() error {
 	statement := instruction.inst
-	
+
 	conditionCode := statement[2:3]
 	labelName := strings.TrimSpace(statement[5:])
 	labelPC, isValidLabel := InstructionMem.Labels[labelName]
@@ -1938,17 +1938,17 @@ type BranchInstruction struct {
 	offset int64
 }
 
-func (instruction *BranchInstruction) checkSyntax() bool {
+func (instruction *BranchInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^B ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *BranchInstruction) parse() error {
 	statement := instruction.inst
-	
+
 	labelName := strings.TrimSpace(statement[2:])
 	labelPC, isValidLabel := InstructionMem.Labels[labelName]
 
@@ -1977,12 +1977,12 @@ type BranchToRegisterInstruction struct {
 	reg1 uint
 }
 
-func (instruction *BranchToRegisterInstruction) checkSyntax() bool {
+func (instruction *BranchToRegisterInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^BR X([0-9]|1[0-9]|2[0-7])$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *BranchToRegisterInstruction) parse() error {
@@ -2006,17 +2006,17 @@ type BranchWithLinkInstruction struct {
 	offset int64
 }
 
-func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
+func (instruction *BranchWithLinkInstruction) checkSyntax() error {
 	r, _ := regexp.Compile("^BL ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
-		return false
+		return errors.New("Syntax error occured in " + instruction.inst)
 	}
-	return true
+	return nil
 }
 
 func (instruction *BranchWithLinkInstruction) parse() error {
 	statement := instruction.inst
-	
+
 	labelName := strings.TrimSpace(statement[3:])
 	labelPC, isValidLabel := InstructionMem.Labels[labelName]
 
