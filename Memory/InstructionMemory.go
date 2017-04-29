@@ -245,14 +245,17 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 
 type Instruction interface {
 	checkSyntax() bool
-	parse()
+	parse() error
 	execute()
 }
 
 func executeInstruction(currentInstruction Instruction) error {
 	isSyntaxOK := currentInstruction.checkSyntax()
 	if isSyntaxOK {
-		currentInstruction.parse()
+		parseError := currentInstruction.parse()
+		if parseError != nil {
+			return parseError
+		}
 		currentInstruction.execute()
 	} else {
 		return errors.New("Syntax error occured")
@@ -281,7 +284,7 @@ func (instruction *AddInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *AddInstruction) parse() {
+func (instruction *AddInstruction) parse() error {
 	statement := instruction.inst
 	var registers [3]int
 	var i, indexX, indexComma int
@@ -301,6 +304,8 @@ func (instruction *AddInstruction) parse() {
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
 	instruction.reg3 = uint(registers[2])
+
+	return nil
 }
 
 func (instruction *AddInstruction) execute() {
@@ -330,7 +335,7 @@ func (instruction *SubInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *SubInstruction) parse() {
+func (instruction *SubInstruction) parse() error {
 	statement := instruction.inst
 	var registers [3]int
 	var i, indexX, indexComma int
@@ -351,6 +356,7 @@ func (instruction *SubInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.reg3 = uint(registers[2])
 
+	return nil
 }
 
 func (instruction *SubInstruction) execute() {
@@ -380,7 +386,7 @@ func (instruction *AddImmediateInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *AddImmediateInstruction) parse() {
+func (instruction *AddImmediateInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -400,6 +406,8 @@ func (instruction *AddImmediateInstruction) parse() {
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
 	instruction.constant = uint(constant)
+
+	return nil
 }
 
 func (instruction *AddImmediateInstruction) execute() {
@@ -429,7 +437,7 @@ func (instruction *SubImmediateInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *SubImmediateInstruction) parse() {
+func (instruction *SubImmediateInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -450,6 +458,7 @@ func (instruction *SubImmediateInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.constant = uint(constant)
 
+	return nil
 }
 
 func (instruction *SubImmediateInstruction) execute() {
@@ -480,7 +489,7 @@ func (instruction *AddAndSetFlagsInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *AddAndSetFlagsInstruction) parse() {
+func (instruction *AddAndSetFlagsInstruction) parse() error {
 	statement := instruction.inst
 	var registers [3]int
 	var i, indexX, indexComma int
@@ -501,6 +510,7 @@ func (instruction *AddAndSetFlagsInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.reg3 = uint(registers[2])
 
+	return nil
 }
 
 func (instruction *AddAndSetFlagsInstruction) execute() {
@@ -564,7 +574,7 @@ func (instruction *SubAndSetFlagsInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *SubAndSetFlagsInstruction) parse() {
+func (instruction *SubAndSetFlagsInstruction) parse() error {
 	statement := instruction.inst
 	var registers [3]int
 	var i, indexX, indexComma int
@@ -585,6 +595,7 @@ func (instruction *SubAndSetFlagsInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.reg3 = uint(registers[2])
 
+	return nil
 }
 
 func (instruction *SubAndSetFlagsInstruction) execute() {
@@ -647,7 +658,7 @@ func (instruction *AddImmediateAndSetFlagsInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *AddImmediateAndSetFlagsInstruction) parse() {
+func (instruction *AddImmediateAndSetFlagsInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -668,6 +679,7 @@ func (instruction *AddImmediateAndSetFlagsInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.constant = uint(constant)
 
+	return nil
 }
 
 func (instruction *AddImmediateAndSetFlagsInstruction) execute() {
@@ -731,7 +743,7 @@ func (instruction *SubImmediateAndSetFlagsInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *SubImmediateAndSetFlagsInstruction) parse() {
+func (instruction *SubImmediateAndSetFlagsInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -752,6 +764,7 @@ func (instruction *SubImmediateAndSetFlagsInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.constant = uint(constant)
 
+	return nil
 }
 
 func (instruction *SubImmediateAndSetFlagsInstruction) execute() {
@@ -814,7 +827,7 @@ func (instruction *LoadInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *LoadInstruction) parse() {
+func (instruction *LoadInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash, indexBracket, offset int
@@ -832,6 +845,7 @@ func (instruction *LoadInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
 
+	return nil
 }
 
 func (instruction *LoadInstruction) execute() {
@@ -863,7 +877,7 @@ func (instruction *StoreInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *StoreInstruction) parse() {
+func (instruction *StoreInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash, indexBracket, offset int
@@ -881,6 +895,7 @@ func (instruction *StoreInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
 
+	return nil
 }
 
 func (instruction *StoreInstruction) execute() {
@@ -912,7 +927,7 @@ func (instruction *LoadHalfInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *LoadHalfInstruction) parse() {
+func (instruction *LoadHalfInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash, indexBracket, offset int
@@ -930,6 +945,7 @@ func (instruction *LoadHalfInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
 
+	return nil
 }
 
 func (instruction *LoadHalfInstruction) execute() {
@@ -968,7 +984,7 @@ func (instruction *StoreHalfInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *StoreHalfInstruction) parse() {
+func (instruction *StoreHalfInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash, indexBracket, offset int
@@ -986,6 +1002,7 @@ func (instruction *StoreHalfInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
 
+	return nil
 }
 
 func (instruction *StoreHalfInstruction) execute() {
@@ -1028,7 +1045,7 @@ func (instruction *LoadByteInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *LoadByteInstruction) parse() {
+func (instruction *LoadByteInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash, indexBracket, offset int
@@ -1046,6 +1063,7 @@ func (instruction *LoadByteInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
 
+	return nil
 }
 
 func (instruction *LoadByteInstruction) execute() {
@@ -1090,7 +1108,7 @@ func (instruction *StoreByteInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *StoreByteInstruction) parse() {
+func (instruction *StoreByteInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash, indexBracket, offset int
@@ -1108,6 +1126,7 @@ func (instruction *StoreByteInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
 
+	return nil
 }
 
 func (instruction *StoreByteInstruction) execute() {
@@ -1164,8 +1183,9 @@ func (instruction *LoadExclusiveInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *LoadExclusiveInstruction) parse() {
+func (instruction *LoadExclusiveInstruction) parse() error {
 
+	return nil
 }
 
 func (instruction *LoadExclusiveInstruction) execute() {
@@ -1194,8 +1214,9 @@ func (instruction *StoreExclusiveInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *StoreExclusiveInstruction) parse() {
+func (instruction *StoreExclusiveInstruction) parse() error {
 
+	return nil
 }
 
 func (instruction *StoreExclusiveInstruction) execute() {
@@ -1224,7 +1245,7 @@ func (instruction *MoveWithZeroInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *MoveWithZeroInstruction) parse() {
+func (instruction *MoveWithZeroInstruction) parse() error {
 	statement := instruction.inst
 	var indexX, indexComma int
 
@@ -1241,6 +1262,8 @@ func (instruction *MoveWithZeroInstruction) parse() {
 	instruction.reg1 = uint(register)
 	instruction.constant = uint16(constant)
 	instruction.offset = offset
+
+	return nil
 }
 
 func (instruction *MoveWithZeroInstruction) execute() {
@@ -1273,7 +1296,7 @@ func (instruction *MoveWithKeepInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *MoveWithKeepInstruction) parse() {
+func (instruction *MoveWithKeepInstruction) parse() error {
 	statement := instruction.inst
 	var indexX, indexComma int
 
@@ -1291,6 +1314,7 @@ func (instruction *MoveWithKeepInstruction) parse() {
 	instruction.constant = uint16(constant)
 	instruction.offset = offset
 
+	return nil
 }
 
 func (instruction *MoveWithKeepInstruction) execute() {
@@ -1336,7 +1360,7 @@ func (instruction *AndInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *AndInstruction) parse() {
+func (instruction *AndInstruction) parse() error {
 	statement := instruction.inst
 	var registers [3]int
 	var i, indexX, indexComma int
@@ -1357,6 +1381,7 @@ func (instruction *AndInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.reg3 = uint(registers[2])
 
+	return nil
 }
 
 func (instruction *AndInstruction) execute() {
@@ -1387,7 +1412,7 @@ func (instruction *OrInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *OrInstruction) parse() {
+func (instruction *OrInstruction) parse() error {
 	statement := instruction.inst
 	var registers [3]int
 	var i, indexX, indexComma int
@@ -1408,6 +1433,7 @@ func (instruction *OrInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.reg3 = uint(registers[2])
 
+	return nil
 }
 
 func (instruction *OrInstruction) execute() {
@@ -1438,7 +1464,7 @@ func (instruction *ExclusiveOrInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *ExclusiveOrInstruction) parse() {
+func (instruction *ExclusiveOrInstruction) parse() error {
 	statement := instruction.inst
 	var registers [3]int
 	var i, indexX, indexComma int
@@ -1459,6 +1485,7 @@ func (instruction *ExclusiveOrInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.reg3 = uint(registers[2])
 
+	return nil
 }
 
 func (instruction *ExclusiveOrInstruction) execute() {
@@ -1489,7 +1516,7 @@ func (instruction *AndImmediateInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *AndImmediateInstruction) parse() {
+func (instruction *AndImmediateInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -1510,6 +1537,7 @@ func (instruction *AndImmediateInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.constant = uint(constant)
 
+	return nil
 }
 
 func (instruction *AndImmediateInstruction) execute() {
@@ -1540,7 +1568,7 @@ func (instruction *OrImmediateInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *OrImmediateInstruction) parse() {
+func (instruction *OrImmediateInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -1561,6 +1589,7 @@ func (instruction *OrImmediateInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.constant = uint(constant)
 
+	return nil
 }
 
 func (instruction *OrImmediateInstruction) execute() {
@@ -1591,7 +1620,7 @@ func (instruction *ExclusiveOrImmediateInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *ExclusiveOrImmediateInstruction) parse() {
+func (instruction *ExclusiveOrImmediateInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -1612,6 +1641,7 @@ func (instruction *ExclusiveOrImmediateInstruction) parse() {
 	instruction.reg2 = uint(registers[1])
 	instruction.constant = uint(constant)
 
+	return nil
 }
 
 func (instruction *ExclusiveOrImmediateInstruction) execute() {
@@ -1642,7 +1672,7 @@ func (instruction *LeftShiftInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *LeftShiftInstruction) parse() {
+func (instruction *LeftShiftInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -1662,6 +1692,8 @@ func (instruction *LeftShiftInstruction) parse() {
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
+
+	return nil
 }
 
 func (instruction *LeftShiftInstruction) execute() {
@@ -1692,7 +1724,7 @@ func (instruction *RightShiftInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *RightShiftInstruction) parse() {
+func (instruction *RightShiftInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
@@ -1712,6 +1744,8 @@ func (instruction *RightShiftInstruction) parse() {
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
+
+	return nil
 }
 
 func (instruction *RightShiftInstruction) execute() {
@@ -1741,7 +1775,7 @@ func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *BranchOnZeroInstruction) parse() {
+func (instruction *BranchOnZeroInstruction) parse() error {
 	statement := instruction.inst
 	var indexX, indexComma int
 
@@ -1750,10 +1784,16 @@ func (instruction *BranchOnZeroInstruction) parse() {
 
 	register, _ := strconv.Atoi(statement[indexX +1 : indexComma])
 	labelName := strings.TrimSpace(statement[indexComma + 1:])
-	labelPC := InstructionMem.Labels[labelName]
+	labelPC, isValidLabel := InstructionMem.Labels[labelName]
+
+	if !isValidLabel {
+		return errors.New("Invalid label name " + labelName + " in " + instruction.inst)
+	}
 
 	instruction.reg1 = uint(register)
 	instruction.offset = labelPC - InstructionMem.PC
+
+	return nil
 }
 
 func (instruction *BranchOnZeroInstruction) execute() {
@@ -1785,7 +1825,7 @@ func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *BranchOnNonZeroInstruction) parse() {
+func (instruction *BranchOnNonZeroInstruction) parse() error {
 	statement := instruction.inst
 	var indexX, indexComma int
 
@@ -1794,10 +1834,16 @@ func (instruction *BranchOnNonZeroInstruction) parse() {
 
 	register, _ := strconv.Atoi(statement[indexX +1 : indexComma])
 	labelName := strings.TrimSpace(statement[indexComma + 1:])
-	labelPC := InstructionMem.Labels[labelName]
+	labelPC, isValidLabel := InstructionMem.Labels[labelName]
+
+	if !isValidLabel {
+		return errors.New("Invalid label name " + labelName + " in " + instruction.inst)
+	}
 
 	instruction.reg1 = uint(register)
 	instruction.offset = labelPC - InstructionMem.PC
+
+	return nil
 }
 
 func (instruction *BranchOnNonZeroInstruction) execute() {
@@ -1829,15 +1875,21 @@ func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *ConditionalBranchInstruction) parse() {
+func (instruction *ConditionalBranchInstruction) parse() error {
 	statement := instruction.inst
 	
 	conditionCode := statement[2:3]
 	labelName := strings.TrimSpace(statement[5:])
-	labelPC := InstructionMem.Labels[labelName]
+	labelPC, isValidLabel := InstructionMem.Labels[labelName]
+
+	if !isValidLabel {
+		return errors.New("Invalid label name " + labelName + " in " + instruction.inst)
+	}
 
 	instruction.condition = conditionCode
 	instruction.offset = labelPC - InstructionMem.PC
+
+	return nil
 }
 
 func (instruction *ConditionalBranchInstruction) execute() {
@@ -1894,13 +1946,19 @@ func (instruction *BranchInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *BranchInstruction) parse() {
+func (instruction *BranchInstruction) parse() error {
 	statement := instruction.inst
 	
 	labelName := strings.TrimSpace(statement[2:])
-	labelPC := InstructionMem.Labels[labelName]
+	labelPC, isValidLabel := InstructionMem.Labels[labelName]
+
+	if !isValidLabel {
+		return errors.New("Invalid label name " + labelName + " in " + instruction.inst)
+	}
 
 	instruction.offset = labelPC - InstructionMem.PC
+
+	return nil
 }
 
 func (instruction *BranchInstruction) execute() {
@@ -1927,8 +1985,9 @@ func (instruction *BranchToRegisterInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *BranchToRegisterInstruction) parse() {
+func (instruction *BranchToRegisterInstruction) parse() error {
 
+	return nil
 }
 
 func (instruction *BranchToRegisterInstruction) execute() {
@@ -1955,13 +2014,19 @@ func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
 	return true
 }
 
-func (instruction *BranchWithLinkInstruction) parse() {
+func (instruction *BranchWithLinkInstruction) parse() error {
 	statement := instruction.inst
 	
 	labelName := strings.TrimSpace(statement[3:])
-	labelPC := InstructionMem.Labels[labelName]
+	labelPC, isValidLabel := InstructionMem.Labels[labelName]
+
+	if !isValidLabel {
+		return errors.New("Invalid label name " + labelName + " in " + instruction.inst)
+	}
 
 	instruction.offset = labelPC - InstructionMem.PC
+
+	return nil
 }
 
 func (instruction *BranchWithLinkInstruction) execute() {
