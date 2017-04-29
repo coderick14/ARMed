@@ -1722,8 +1722,8 @@ func (instruction *RightShiftInstruction) execute() {
 
 /*
  * INSTRUCTION : COMPARE AND BRANCH ON EQUAL 0
- * Example : CBZ X1, 25
- * Meaning : if (X1 == 0) go to PC+100
+ * Example : CBZ X1, label
+ * Meaning : if (X1 == 0) go to label
  * Comments : Equal 0 test; PC-relative branch
  */
 
@@ -1734,7 +1734,7 @@ type BranchOnZeroInstruction struct {
 }
 
 func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^CBZ X([0-9]|1[0-9]|2[0-7]), ([1-9][0-9]*)$")
+	r, _ := regexp.Compile("^CBZ X([0-9]|1[0-9]|2[0-7]), ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -1742,7 +1742,18 @@ func (instruction *BranchOnZeroInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchOnZeroInstruction) parse() {
+	statement := instruction.inst
+	var indexX, indexComma int
 
+	indexX = strings.Index(statement, "X")
+	indexComma = strings.Index(statement, ",")
+
+	register, _ := strconv.Atoi(statement[indexX +1 : indexComma])
+	labelName := strings.TrimSpace(statement[indexComma + 1:])
+	labelPC := InstructionMem.Labels[labelName]
+
+	instruction.reg1 = uint(register)
+	instruction.offset = labelPC - InstructionMem.PC
 }
 
 func (instruction *BranchOnZeroInstruction) execute() {
@@ -1755,8 +1766,8 @@ func (instruction *BranchOnZeroInstruction) execute() {
 
 /*
  * INSTRUCTION : COMPARE AND BRANCH ON NOT EQUAL 0
- * Example : CBNZ X1, 25
- * Meaning : if (X1 != 0) go to PC+100
+ * Example : CBNZ X1, label
+ * Meaning : if (X1 != 0) go to label
  * Comments : NotEqual 0 test; PC-relative branch
  */
 
@@ -1767,7 +1778,7 @@ type BranchOnNonZeroInstruction struct {
 }
 
 func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^CBNZ X([0-9]|1[0-9]|2[0-7]), ([1-9][0-9]*)$")
+	r, _ := regexp.Compile("^CBNZ X([0-9]|1[0-9]|2[0-7]), ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -1775,7 +1786,18 @@ func (instruction *BranchOnNonZeroInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchOnNonZeroInstruction) parse() {
+	statement := instruction.inst
+	var indexX, indexComma int
 
+	indexX = strings.Index(statement, "X")
+	indexComma = strings.Index(statement, ",")
+
+	register, _ := strconv.Atoi(statement[indexX +1 : indexComma])
+	labelName := strings.TrimSpace(statement[indexComma + 1:])
+	labelPC := InstructionMem.Labels[labelName]
+
+	instruction.reg1 = uint(register)
+	instruction.offset = labelPC - InstructionMem.PC
 }
 
 func (instruction *BranchOnNonZeroInstruction) execute() {
@@ -1788,8 +1810,8 @@ func (instruction *BranchOnNonZeroInstruction) execute() {
 
 /*
  * INSTRUCTION : CONDITIONAL BRANCH
- * Example : B.cond 25
- * Meaning : if (condition true) go to PC+100
+ * Example : B.cond label
+ * Meaning : if (condition true) go to label
  * Comments : Test condition codes; if true, then branch
  */
 
@@ -1800,7 +1822,7 @@ type ConditionalBranchInstruction struct {
 }
 
 func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^B\\.(EQ|NE|LT|LE|GT|GE|LO|LS|HI|HS) ([1-9][0-9]*)$")
+	r, _ := regexp.Compile("^B\\.(EQ|NE|LT|LE|GT|GE|LO|LS|HI|HS) ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -1808,7 +1830,14 @@ func (instruction *ConditionalBranchInstruction) checkSyntax() bool {
 }
 
 func (instruction *ConditionalBranchInstruction) parse() {
+	statement := instruction.inst
+	
+	conditionCode := statement[2:3]
+	labelName := strings.TrimSpace(statement[5:])
+	labelPC := InstructionMem.Labels[labelName]
 
+	instruction.condition = conditionCode
+	instruction.offset = labelPC - InstructionMem.PC
 }
 
 func (instruction *ConditionalBranchInstruction) execute() {
@@ -1847,8 +1876,8 @@ func (instruction *ConditionalBranchInstruction) execute() {
 
 /*
  * INSTRUCTION : UNCONDITIONAL BRANCH
- * Example : B 25
- * Meaning : go to PC+100
+ * Example : B label
+ * Meaning : go to label
  * Comments : Branch to PC-relative target address
  */
 
@@ -1858,7 +1887,7 @@ type BranchInstruction struct {
 }
 
 func (instruction *BranchInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^B ([1-9][0-9]*)$")
+	r, _ := regexp.Compile("^B ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -1866,7 +1895,12 @@ func (instruction *BranchInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchInstruction) parse() {
+	statement := instruction.inst
+	
+	labelName := strings.TrimSpace(statement[2:])
+	labelPC := InstructionMem.Labels[labelName]
 
+	instruction.offset = labelPC - InstructionMem.PC
 }
 
 func (instruction *BranchInstruction) execute() {
@@ -1903,8 +1937,8 @@ func (instruction *BranchToRegisterInstruction) execute() {
 
 /*
  * INSTRUCTION : UNCONDITIONAL BRANCH WITH LINK
- * Example : BL 2500
- * Meaning : X30 = PC + 4; go to PC + 10000
+ * Example : BL label
+ * Meaning : X30 = PC + 4; go to label
  * Comments : For procedure call (PC-relative)
  */
 
@@ -1914,7 +1948,7 @@ type BranchWithLinkInstruction struct {
 }
 
 func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
-	r, _ := regexp.Compile("^BL ([1-9][0-9]*)$")
+	r, _ := regexp.Compile("^BL ([a-zA-Z][[:alnum:]]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return false
 	}
@@ -1922,7 +1956,12 @@ func (instruction *BranchWithLinkInstruction) checkSyntax() bool {
 }
 
 func (instruction *BranchWithLinkInstruction) parse() {
+	statement := instruction.inst
+	
+	labelName := strings.TrimSpace(statement[3:])
+	labelPC := InstructionMem.Labels[labelName]
 
+	instruction.offset = labelPC - InstructionMem.PC
 }
 
 func (instruction *BranchWithLinkInstruction) execute() {
