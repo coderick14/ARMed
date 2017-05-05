@@ -42,8 +42,8 @@ func (instructionMemory *InstructionMemory) updatePC(offset ...int64) {
  * Method to check if program counter is valid (is program over or not)
  */
 
-func (instructionMemory *InstructionMemory) isValidPC() bool {
-	isValidPC := instructionMemory.PC >= 0 && instructionMemory.PC < int64(len(instructionMemory.Instructions))
+func isValidPC(PC int64) bool {
+	isValidPC := PC >= 0 && PC < int64(len(InstructionMem.Instructions))
 	return isValidPC
 }
 
@@ -968,6 +968,8 @@ func (instruction *LoadHalfInstruction) execute() {
 		memoryValue = int16(dataMemory.read(uint64(memoryIndex / 4)))
 	}
 	setRegisterValue(instruction.reg1, int64(memoryValue))
+
+	InstructionMem.updatePC()
 }
 
 /*
@@ -1029,6 +1031,8 @@ func (instruction *StoreHalfInstruction) execute() {
 		currentMemoryValue = currentMemoryValue | int32(registerValue)
 	}
 	dataMemory.write(uint64(memoryIndex/4), currentMemoryValue)
+
+	InstructionMem.updatePC()
 }
 
 /*
@@ -1092,6 +1096,8 @@ func (instruction *LoadByteInstruction) execute() {
 		registerValue = int8(memoryValue)
 	}
 	setRegisterValue(instruction.reg1, int64(registerValue))
+
+	InstructionMem.updatePC()
 }
 
 /*
@@ -1168,6 +1174,8 @@ func (instruction *StoreByteInstruction) execute() {
 
 	}
 	dataMemory.write(uint64(memoryIndex/4), currentMemoryValue)
+
+	InstructionMem.updatePC()
 }
 
 /*
@@ -1981,18 +1989,19 @@ func (instruction *BranchInstruction) execute() {
 
 /*
  * INSTRUCTION : UNCONDITIONAL BRANCH TO REGISTER
- * Example : BR X30
- * Meaning : go to X30
+ * Example : BR LR
+ * Meaning : go to address stored in LR
  * Comments : Branch to address stored in register. Used for switch, procedure return
  */
 
 type BranchToRegisterInstruction struct {
-	inst string
-	reg1 uint
+	inst   string
+	reg1   uint
+	offset int64
 }
 
 func (instruction *BranchToRegisterInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^BR X([0-9]|1[0-9]|2[0-7])$")
+	r, _ := regexp.Compile("^BR (X([0-9]|1[0-9]|2[0-7])|LR)$")
 	if r.MatchString(instruction.inst) == false {
 		return errors.New("Syntax error occured in " + instruction.inst)
 	}
@@ -2000,12 +2009,29 @@ func (instruction *BranchToRegisterInstruction) checkSyntax() error {
 }
 
 func (instruction *BranchToRegisterInstruction) parse() error {
+	statement := instruction.inst
+	registerName := strings.TrimSpace(statement[3:])
+	var register uint
+
+	if strings.Compare(registerName, "LR") == 0 {
+		register = 30
+	} else {
+		registerValue, _ := strconv.Atoi(statement[4:])
+		register = uint(registerValue)
+	}
+
+	if !isValidPC(getRegisterValue(register)) {
+		return errors.New("Invalid address in register " + registerName + " in " + instruction.inst)
+	}
+
+	instruction.reg1 = register
+	instruction.offset = getRegisterValue(register) - InstructionMem.PC
 
 	return nil
 }
 
 func (instruction *BranchToRegisterInstruction) execute() {
-
+	InstructionMem.updatePC(instruction.offset)
 }
 
 /*
