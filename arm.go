@@ -15,7 +15,10 @@ var helpString = `ARMed version 1.0
 Author : https://github.com/coderick14
 
 ARMed is a very basic emulator of the 64-bit LEGv8 architecture written in Golang
-USAGE : ARMed [--help] SOURCE_FILE
+USAGE : ARMed [--all] SOURCE_FILE
+
+The --all flag will show all register values after an instruction, with updated ones in color.
+In absence of this flag, it will show only updated registers.
 
 Found a bug? Feel free to raise an issue on https://github.com/coderick14/ARMed
 Contributions welcome :)`
@@ -23,6 +26,7 @@ Contributions welcome :)`
 func main() {
 	var err error
 	helpPtr := flag.Bool("help", false, "Display help")
+	allPtr := flag.Bool("all", false, "Display all registers")
 
 	flag.Parse()
 
@@ -63,11 +67,13 @@ func main() {
 	Memory.InitRegisters()
 
 	for _, _ = range Memory.InstructionMem.Instructions {
+		Memory.SaveRegisters()
 		err = Memory.InstructionMem.ValidateAndExecuteInstruction()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		Memory.ShowRegisters(*allPtr)
 	}
 
 }
