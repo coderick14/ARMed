@@ -21,10 +21,8 @@ var InstructionMem = InstructionMemory{
 }
 
 var dataMemory = DataMemory{
-	Memory: make([]int32, 4096),
+	Memory: make([]int32, MEMORY_SIZE),
 }
-
-const INCREMENT int64 = 1
 
 /*
  * Method to update program counter
@@ -295,7 +293,7 @@ func (instruction *AddInstruction) parse() error {
 			indexComma = len(statement)
 		}
 		if statement[indexX+1:indexComma] == "ZR" {
-			registers[i] = 31
+			registers[i] = XZR
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
@@ -348,7 +346,7 @@ func (instruction *SubInstruction) parse() error {
 			indexComma = len(statement)
 		}
 		if statement[indexX+1:indexComma] == "ZR" {
-			registers[i] = 31
+			registers[i] = XZR
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
@@ -383,7 +381,7 @@ type AddImmediateInstruction struct {
 }
 
 func (instruction *AddImmediateInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^ADDI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	r, _ := regexp.Compile("^ADDI ((X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]))|(SP, SP)), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return errors.New("Syntax error occured in " + instruction.inst)
 	}
@@ -392,13 +390,25 @@ func (instruction *AddImmediateInstruction) checkSyntax() error {
 
 func (instruction *AddImmediateInstruction) parse() error {
 	statement := instruction.inst
+
+	// if instruction updates stack pointer
+	if strings.Index(statement, "SP") != -1 {
+		indexHash := strings.Index(statement, "#")
+		constant, _ := strconv.Atoi(statement[indexHash+1:])
+		instruction.reg1 = SP
+		instruction.reg2 = SP
+		instruction.constant = uint(constant)
+
+		return nil
+	}
+
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
 	for i = 0; i < 2; i++ {
 		indexX = strings.Index(statement, "X")
 		indexComma = strings.Index(statement, ",")
 		if statement[indexX+1:indexComma] == "ZR" {
-			registers[i] = 31
+			registers[i] = XZR
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
@@ -434,7 +444,7 @@ type SubImmediateInstruction struct {
 }
 
 func (instruction *SubImmediateInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^SUBI X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)$")
+	r, _ := regexp.Compile("^SUBI ((X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]))|(SP, SP)), #(0|[1-9][0-9]*)$")
 	if r.MatchString(instruction.inst) == false {
 		return errors.New("Syntax error occured in " + instruction.inst)
 	}
@@ -443,13 +453,25 @@ func (instruction *SubImmediateInstruction) checkSyntax() error {
 
 func (instruction *SubImmediateInstruction) parse() error {
 	statement := instruction.inst
+
+	// if instruction updates stack pointer
+	if strings.Index(statement, "SP") != -1 {
+		indexHash := strings.Index(statement, "#")
+		constant, _ := strconv.Atoi(statement[indexHash+1:])
+		instruction.reg1 = SP
+		instruction.reg2 = SP
+		instruction.constant = uint(constant)
+
+		return nil
+	}
+
 	var registers [2]int
 	var i, indexX, indexComma, indexHash int
 	for i = 0; i < 2; i++ {
 		indexX = strings.Index(statement, "X")
 		indexComma = strings.Index(statement, ",")
 		if statement[indexX+1:indexComma] == "ZR" {
-			registers[i] = 31
+			registers[i] = XZR
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
@@ -504,7 +526,7 @@ func (instruction *AddAndSetFlagsInstruction) parse() error {
 			indexComma = len(statement)
 		}
 		if statement[indexX+1:indexComma] == "ZR" {
-			registers[i] = 31
+			registers[i] = XZR
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
@@ -591,7 +613,7 @@ func (instruction *SubAndSetFlagsInstruction) parse() error {
 			indexComma = len(statement)
 		}
 		if statement[indexX+1:indexComma] == "ZR" {
-			registers[i] = 31
+			registers[i] = XZR
 		} else {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
 		}
@@ -828,7 +850,7 @@ type LoadInstruction struct {
 }
 
 func (instruction *LoadInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^LDUR X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^LDUR X([0-9]|1[0-9]|2[0-7]), \\[(X([0-9]|1[0-9]|2[0-7])|SP), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return errors.New("Syntax error occured in " + instruction.inst)
 	}
@@ -842,7 +864,11 @@ func (instruction *LoadInstruction) parse() error {
 	for i = 0; i < 2; i++ {
 		indexX = strings.Index(statement, "X")
 		indexComma = strings.Index(statement, ",")
-		registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		if indexX != -1 {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		} else {
+			registers[i] = SP
+		}
 		statement = statement[indexComma+1:]
 	}
 	indexHash = strings.Index(statement, "#")
@@ -852,6 +878,11 @@ func (instruction *LoadInstruction) parse() error {
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
+
+	//check for alignment restriction
+	if (instruction.reg2 + instruction.offset) % 4 != 0 {
+		return errors.New("Alignment restriction violation in : " + instruction.inst)
+	}
 
 	return nil
 }
@@ -878,7 +909,7 @@ type StoreInstruction struct {
 }
 
 func (instruction *StoreInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^STUR X([0-9]|1[0-9]|2[0-7]), \\[X([0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^STUR X([0-9]|1[0-9]|2[0-7]), \\[(X([0-9]|1[0-9]|2[0-7])|SP), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return errors.New("Syntax error occured in " + instruction.inst)
 	}
@@ -892,7 +923,11 @@ func (instruction *StoreInstruction) parse() error {
 	for i = 0; i < 2; i++ {
 		indexX = strings.Index(statement, "X")
 		indexComma = strings.Index(statement, ",")
-		registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		if indexX != -1 {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		} else {
+			registers[i] = SP
+		}
 		statement = statement[indexComma+1:]
 	}
 	indexHash = strings.Index(statement, "#")
@@ -902,6 +937,11 @@ func (instruction *StoreInstruction) parse() error {
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
+	
+	//check for alignment restriction
+	if (instruction.reg2 + instruction.offset) % 4 != 0 {
+		return errors.New("Alignment restriction violation in : " + instruction.inst)
+	}
 
 	return nil
 }
@@ -952,6 +992,11 @@ func (instruction *LoadHalfInstruction) parse() error {
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
+
+	//check for alignment restriction
+	if (instruction.reg2 + instruction.offset) % 4 != 0 && (instruction.reg2 + instruction.offset) % 4 != 2 {
+		return errors.New("Alignment restriction violation in : " + instruction.inst)
+	}
 
 	return nil
 }
@@ -1011,6 +1056,11 @@ func (instruction *StoreHalfInstruction) parse() error {
 	instruction.reg1 = uint(registers[0])
 	instruction.reg2 = uint(registers[1])
 	instruction.offset = uint(offset)
+
+	//check for alignment restriction
+	if (instruction.reg2 + instruction.offset) % 4 != 0 && (instruction.reg2 + instruction.offset) % 4 != 2 {
+		return errors.New("Alignment restriction violation in : " + instruction.inst)
+	}
 
 	return nil
 }
