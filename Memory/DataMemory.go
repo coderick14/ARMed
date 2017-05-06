@@ -7,9 +7,18 @@ type DataMemory struct {
 	Memory []int32
 }
 
-var Registers [32]int64
+var registers [32]int64
 
 var flagNegative, flagZero, flagOverflow, flagCarry bool
+
+/*
+ * method to initiate register values
+ */
+
+ func InitRegisters() {
+ 	registers[XZR] = 0
+ 	registers[SP] = MEMORY_SIZE * 4 
+ }
 
 /*
  * Method to read data from memory
@@ -39,7 +48,7 @@ func (dataMemory *DataMemory) write(address uint64, value int32) {
  */
 
 func getRegisterValue(registerIndex uint) int64 {
-	return Registers[registerIndex]
+	return registers[registerIndex]
 }
 
 /*
@@ -47,5 +56,5 @@ func getRegisterValue(registerIndex uint) int64 {
  */
 
 func setRegisterValue(registerIndex uint, value int64) {
-	Registers[registerIndex] = value
+	registers[registerIndex] = value
 }

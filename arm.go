@@ -60,6 +60,8 @@ func main() {
 		Memory.InstructionMem.Instructions = append(Memory.InstructionMem.Instructions, line)
 	}
 
+	Memory.InitRegisters()
+
 	for _, _ = range Memory.InstructionMem.Instructions {
 		err = Memory.InstructionMem.ValidateAndExecuteInstruction()
 		if err != nil {
