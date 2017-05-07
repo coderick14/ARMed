@@ -14,7 +14,7 @@ import (
 var helpString = `ARMed version 1.0
 Author : https://github.com/coderick14
 
-ARMed is a very basic emulator of the 64-bit LEGv8 architecture written in Golang
+ARMed is a very basic emulator of the ARM instruction set written in Golang
 USAGE : ARMed [OPTIONS]... SOURCE_FILE
 
 --all 		show all register values after an instruction, with updated ones in color
@@ -100,7 +100,5 @@ func main() {
 		}
 
 	}
-
-	
 
 }

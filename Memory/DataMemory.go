@@ -1,12 +1,12 @@
 package memory
 
 import (
-	tablewriter "github.com/olekukonko/tablewriter"
-	color "github.com/fatih/color"
-	"os"
 	"fmt"
-	"sync"
+	color "github.com/fatih/color"
+	tablewriter "github.com/olekukonko/tablewriter"
+	"os"
 	"strconv"
+	"sync"
 )
 
 type DataMemory struct {
@@ -52,10 +52,10 @@ func ShowRegisters(showAll bool) {
 		for i = 0; i < 32; i++ {
 			registerNum = strconv.Itoa(i)
 			newRegisterVal = strconv.FormatInt(getRegisterValue(uint(i)), 10)
-			if getRegisterValue(uint(i)) != buffer[i] {	
-				table.Append([]string{color.CyanString("R"+registerNum), color.CyanString(newRegisterVal)})
+			if getRegisterValue(uint(i)) != buffer[i] {
+				table.Append([]string{color.CyanString("R" + registerNum), color.CyanString(newRegisterVal)})
 			} else {
-				table.Append([]string{"R"+registerNum, newRegisterVal})
+				table.Append([]string{"R" + registerNum, newRegisterVal})
 			}
 		}
 	} else {
@@ -66,11 +66,10 @@ func ShowRegisters(showAll bool) {
 				registerNum = strconv.Itoa(i)
 				prevRegisterVal = strconv.FormatInt(buffer[i], 10)
 				newRegisterVal = strconv.FormatInt(getRegisterValue(uint(i)), 10)
-				table.Append([]string{color.CyanString("R"+registerNum), color.RedString(prevRegisterVal), color.GreenString(newRegisterVal)})
+				table.Append([]string{color.CyanString("R" + registerNum), color.RedString(prevRegisterVal), color.GreenString(newRegisterVal)})
 			}
 		}
-	} 
-	
+	}
 
 	table.Render()
 	fmt.Printf("\n")
