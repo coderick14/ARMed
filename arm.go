@@ -15,10 +15,11 @@ var helpString = `ARMed version 1.0
 Author : https://github.com/coderick14
 
 ARMed is a very basic emulator of the 64-bit LEGv8 architecture written in Golang
-USAGE : ARMed [--all] SOURCE_FILE
+USAGE : ARMed [OPTIONS]... SOURCE_FILE
 
-The --all flag will show all register values after an instruction, with updated ones in color.
-In absence of this flag, it will show only updated registers.
+--all 		show all register values after an instruction, with updated ones in color
+--end 		show updated registers only once, at the end of the program. Overrides --all
+--help 		display help
 
 Found a bug? Feel free to raise an issue on https://github.com/coderick14/ARMed
 Contributions welcome :)`
@@ -27,6 +28,7 @@ func main() {
 	var err error
 	helpPtr := flag.Bool("help", false, "Display help")
 	allPtr := flag.Bool("all", false, "Display all registers")
+	endPtr := flag.Bool("end", false, "Display registers only at end")
 
 	flag.Parse()
 
@@ -66,14 +68,31 @@ func main() {
 
 	Memory.InitRegisters()
 
-	for _, _ = range Memory.InstructionMem.Instructions {
+	if *endPtr == true {
 		Memory.SaveRegisters()
-		err = Memory.InstructionMem.ValidateAndExecuteInstruction()
-		if err != nil {
-			fmt.Println(err)
-			return
+		for _, _ = range Memory.InstructionMem.Instructions {
+			err = Memory.InstructionMem.ValidateAndExecuteInstruction()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 		}
-		Memory.ShowRegisters(*allPtr)
+		Memory.ShowRegisters(false)
+
+	} else {
+
+		for _, _ = range Memory.InstructionMem.Instructions {
+			Memory.SaveRegisters()
+			err = Memory.InstructionMem.ValidateAndExecuteInstruction()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			Memory.ShowRegisters(*allPtr)
+		}
+
 	}
+
+	
 
 }
