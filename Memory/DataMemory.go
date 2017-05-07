@@ -4,6 +4,7 @@ import (
 	tablewriter "github.com/olekukonko/tablewriter"
 	color "github.com/fatih/color"
 	"os"
+	"fmt"
 	"sync"
 	"strconv"
 )
@@ -72,6 +73,7 @@ func ShowRegisters(showAll bool) {
 	
 
 	table.Render()
+	fmt.Printf("\n")
 }
 
 /*

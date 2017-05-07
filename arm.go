@@ -19,6 +19,7 @@ USAGE : ARMed [OPTIONS]... SOURCE_FILE
 
 --all 		show all register values after an instruction, with updated ones in color
 --end 		show updated registers only once, at the end of the program. Overrides --all
+--no-log 	suppress logs of statements being executed
 --help 		display help
 
 Found a bug? Feel free to raise an issue on https://github.com/coderick14/ARMed
@@ -27,8 +28,9 @@ Contributions welcome :)`
 func main() {
 	var err error
 	helpPtr := flag.Bool("help", false, "Display help")
-	allPtr := flag.Bool("all", false, "Display all registers")
+	allPtr := flag.Bool("all", false, "Display all registers after each instruction")
 	endPtr := flag.Bool("end", false, "Display registers only at end")
+	logPtr := flag.Bool("no-log", false, "Suppress log messages")
 
 	flag.Parse()
 
@@ -71,6 +73,9 @@ func main() {
 	if *endPtr == true {
 		Memory.SaveRegisters()
 		for _, _ = range Memory.InstructionMem.Instructions {
+			if *logPtr == false {
+				fmt.Println("Executing :", Memory.InstructionMem.Instructions[Memory.InstructionMem.PC])
+			}
 			err = Memory.InstructionMem.ValidateAndExecuteInstruction()
 			if err != nil {
 				fmt.Println(err)
@@ -83,6 +88,9 @@ func main() {
 
 		for _, _ = range Memory.InstructionMem.Instructions {
 			Memory.SaveRegisters()
+			if *logPtr == false {
+				fmt.Println("Executing :", Memory.InstructionMem.Instructions[Memory.InstructionMem.PC])
+			}
 			err = Memory.InstructionMem.ValidateAndExecuteInstruction()
 			if err != nil {
 				fmt.Println(err)
