@@ -880,7 +880,7 @@ func (instruction *LoadInstruction) parse() error {
 	instruction.offset = uint(offset)
 
 	//check for alignment restriction
-	if (instruction.reg2+instruction.offset)%4 != 0 {
+	if (getRegisterValue(instruction.reg2)+int64(instruction.offset))%4 != 0 {
 		return errors.New("Alignment restriction violation in : " + instruction.inst)
 	}
 
@@ -939,7 +939,7 @@ func (instruction *StoreInstruction) parse() error {
 	instruction.offset = uint(offset)
 
 	//check for alignment restriction
-	if (instruction.reg2+instruction.offset)%4 != 0 {
+	if (getRegisterValue(instruction.reg2)+int64(instruction.offset))%4 != 0 {
 		return errors.New("Alignment restriction violation in : " + instruction.inst)
 	}
 
@@ -994,7 +994,7 @@ func (instruction *LoadHalfInstruction) parse() error {
 	instruction.offset = uint(offset)
 
 	//check for alignment restriction
-	if (instruction.reg2+instruction.offset)%4 != 0 && (instruction.reg2+instruction.offset)%4 != 2 {
+	if (getRegisterValue(instruction.reg2)+int64(instruction.offset))%4 != 0 && (getRegisterValue(instruction.reg2)+int64(instruction.offset))%4 != 2 {
 		return errors.New("Alignment restriction violation in : " + instruction.inst)
 	}
 
@@ -1058,7 +1058,7 @@ func (instruction *StoreHalfInstruction) parse() error {
 	instruction.offset = uint(offset)
 
 	//check for alignment restriction
-	if (instruction.reg2+instruction.offset)%4 != 0 && (instruction.reg2+instruction.offset)%4 != 2 {
+	if (getRegisterValue(instruction.reg2)+int64(instruction.offset))%4 != 0 && (getRegisterValue(instruction.reg2)+int64(instruction.offset))%4 != 2 {
 		return errors.New("Alignment restriction violation in : " + instruction.inst)
 	}
 
