@@ -1208,13 +1208,13 @@ func (instruction *StoreByteInstruction) execute() {
 
 		// store in bits[23:16]
 		currentMemoryValue = currentMemoryValue & (((1 << 16) - 1) | -(1 << 24)) // clear bits[23:16]
-		currentMemoryValue = currentMemoryValue | int32(registerValue)
+		currentMemoryValue = currentMemoryValue | (int32(registerValue) << 16)
 
 	} else if memoryIndex%4 == 2 {
 
 		// store in bits[15:8]
 		currentMemoryValue = currentMemoryValue & (((1 << 8) - 1) | -(1 << 16)) // clear bits[15:8]
-		currentMemoryValue = currentMemoryValue | int32(registerValue)
+		currentMemoryValue = currentMemoryValue | (int32(registerValue) << 8)
 
 	} else {
 
