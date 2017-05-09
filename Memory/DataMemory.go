@@ -44,9 +44,11 @@ func SaveRegisters() {
 
 func ShowRegisters(showAll bool) {
 	var i int
+	var hasUpdated bool = false
 	var registerNum, prevRegisterVal, newRegisterVal string
 	table := tablewriter.NewWriter(os.Stdout)
 	if showAll == true {
+		hasUpdated = true
 		table.SetHeader([]string{"Register", "Value"})
 
 		for i = 0; i < 32; i++ {
@@ -63,6 +65,7 @@ func ShowRegisters(showAll bool) {
 
 		for i = 0; i < 32; i++ {
 			if getRegisterValue(uint(i)) != buffer[i] {
+				hasUpdated = true
 				registerNum = strconv.Itoa(i)
 				prevRegisterVal = strconv.FormatInt(buffer[i], 10)
 				newRegisterVal = strconv.FormatInt(getRegisterValue(uint(i)), 10)
@@ -70,9 +73,10 @@ func ShowRegisters(showAll bool) {
 			}
 		}
 	}
-
-	table.Render()
-	fmt.Printf("\n")
+	if hasUpdated {
+		table.Render()
+		fmt.Printf("\n")
+	}
 }
 
 /*
