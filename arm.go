@@ -69,6 +69,7 @@ func main() {
 	}
 
 	Memory.InitRegisters()
+	Memory.InstructionMem.ExtractLabels()
 
 	if *endPtr == true {
 		Memory.SaveRegisters()

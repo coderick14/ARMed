@@ -46,6 +46,26 @@ func isValidPC(PC int64) bool {
 }
 
 /*
+ * method to extract labels from instructions
+ */
+
+func (instructionMemory *InstructionMemory) ExtractLabels() {
+
+	labelRegex, _ := regexp.Compile("^([a-zA-Z][[:alnum:]]*)[[:space:]]*:")
+	for counter, currentInstruction := range instructionMemory.Instructions {
+		if labelRegex.MatchString(currentInstruction) {
+
+			indexColon := strings.Index(currentInstruction, ":")
+			labelName := strings.TrimSpace(currentInstruction[:indexColon])
+			currentInstruction = strings.TrimSpace(currentInstruction[indexColon+1:])
+			instructionMemory.Labels[labelName] = int64(counter)
+			instructionMemory.Instructions[counter] = currentInstruction
+	
+		}
+	}
+}
+
+/*
  * Function : ValidateAndExecuteInstruction
  * Details  : checks instruction type, performs syntax analysis, parses the statement and executes it
  */
@@ -56,17 +76,6 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 	currentInstruction := instructionMemory.Instructions[instructionMemory.PC]
 
 	var err error
-
-	// Check for labels
-	labelRegex, _ := regexp.Compile("^([a-zA-Z][[:alnum:]]*)[[:space:]]*:")
-	if labelRegex.MatchString(currentInstruction) {
-
-		indexColon := strings.Index(currentInstruction, ":")
-		labelName := strings.TrimSpace(currentInstruction[:indexColon])
-		currentInstruction = strings.TrimSpace(currentInstruction[indexColon+1:])
-		instructionMemory.Labels[labelName] = instructionMemory.PC
-
-	}
 
 	if strings.HasPrefix(currentInstruction, "ADD ") {
 
