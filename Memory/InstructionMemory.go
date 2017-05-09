@@ -40,7 +40,7 @@ func (instructionMemory *InstructionMemory) updatePC(offset ...int64) {
  * Method to check if program counter is valid (is program over or not)
  */
 
-func isValidPC(PC int64) bool {
+func IsValidPC(PC int64) bool {
 	isValidPC := PC >= 0 && PC < int64(len(InstructionMem.Instructions))
 	return isValidPC
 }
@@ -859,7 +859,7 @@ type LoadInstruction struct {
 }
 
 func (instruction *LoadInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^LDUR X([0-9]|1[0-9]|2[0-7]), \\[(X([0-9]|1[0-9]|2[0-7])|SP), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^LDUR (X([0-9]|1[0-9]|2[0-7])|LR), \\[(X([0-9]|1[0-9]|2[0-7])|SP), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return errors.New("Syntax error occured in " + instruction.inst)
 	}
@@ -869,12 +869,15 @@ func (instruction *LoadInstruction) checkSyntax() error {
 func (instruction *LoadInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
-	var i, indexX, indexComma, indexHash, indexBracket, offset int
+	var i, indexX, indexLR, indexComma, indexHash, indexBracket, offset int
 	for i = 0; i < 2; i++ {
 		indexX = strings.Index(statement, "X")
+		indexLR = strings.Index(statement, "LR")
 		indexComma = strings.Index(statement, ",")
 		if indexX != -1 {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		} else if indexLR != -1 {
+			registers[i] = LR
 		} else {
 			registers[i] = SP
 		}
@@ -918,7 +921,7 @@ type StoreInstruction struct {
 }
 
 func (instruction *StoreInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^STUR X([0-9]|1[0-9]|2[0-7]), \\[(X([0-9]|1[0-9]|2[0-7])|SP), #(0|[1-9][0-9]*)\\]$")
+	r, _ := regexp.Compile("^STUR (X([0-9]|1[0-9]|2[0-7])|LR), \\[(X([0-9]|1[0-9]|2[0-7])|SP), #(0|[1-9][0-9]*)\\]$")
 	if r.MatchString(instruction.inst) == false {
 		return errors.New("Syntax error occured in " + instruction.inst)
 	}
@@ -928,12 +931,15 @@ func (instruction *StoreInstruction) checkSyntax() error {
 func (instruction *StoreInstruction) parse() error {
 	statement := instruction.inst
 	var registers [2]int
-	var i, indexX, indexComma, indexHash, indexBracket, offset int
+	var i, indexX, indexLR, indexComma, indexHash, indexBracket, offset int
 	for i = 0; i < 2; i++ {
 		indexX = strings.Index(statement, "X")
+		indexLR = strings.Index(statement, "LR")
 		indexComma = strings.Index(statement, ",")
 		if indexX != -1 {
 			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		} else if indexLR != -1 {
+			registers[i] = LR
 		} else {
 			registers[i] = SP
 		}
@@ -1959,7 +1965,7 @@ func (instruction *ConditionalBranchInstruction) checkSyntax() error {
 func (instruction *ConditionalBranchInstruction) parse() error {
 	statement := instruction.inst
 
-	conditionCode := statement[2:3]
+	conditionCode := statement[2:4]
 	labelName := strings.TrimSpace(statement[5:])
 	labelPC, isValidLabel := InstructionMem.Labels[labelName]
 
@@ -1975,28 +1981,39 @@ func (instruction *ConditionalBranchInstruction) parse() error {
 
 func (instruction *ConditionalBranchInstruction) execute() {
 	is_branching := false
+
 	switch instruction.condition {
 
 	case "EQ":
 		is_branching = flagZero
+		break
 	case "NE":
 		is_branching = !flagZero
+		break
 	case "LT":
 		is_branching = (flagNegative != flagOverflow)
+		break
 	case "LE":
 		is_branching = !(flagZero == false && flagNegative == flagOverflow)
+		break
 	case "GT":
 		is_branching = (flagZero == false && flagNegative == flagOverflow)
+		break
 	case "GE":
 		is_branching = (flagNegative == flagOverflow)
+		break
 	case "LO":
 		is_branching = !flagCarry
+		break
 	case "LS":
 		is_branching = !(flagZero == false && flagCarry == true)
+		break
 	case "HI":
 		is_branching = (flagZero == false && flagCarry == true)
+		break
 	case "HS":
 		is_branching = flagCarry
+		break
 
 	}
 
@@ -2079,7 +2096,7 @@ func (instruction *BranchToRegisterInstruction) parse() error {
 		register = uint(registerValue)
 	}
 
-	if !isValidPC(getRegisterValue(register)) {
+	if !IsValidPC(getRegisterValue(register)) {
 		return errors.New("Invalid address in register " + registerName + " in " + instruction.inst)
 	}
 

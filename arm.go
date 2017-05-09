@@ -73,7 +73,7 @@ func main() {
 
 	if *endPtr == true {
 		Memory.SaveRegisters()
-		for _, _ = range Memory.InstructionMem.Instructions {
+		for Memory.IsValidPC(Memory.InstructionMem.PC) {
 			if *logPtr == false {
 				fmt.Println("Executing :", Memory.InstructionMem.Instructions[Memory.InstructionMem.PC])
 			}
@@ -87,7 +87,7 @@ func main() {
 
 	} else {
 
-		for _, _ = range Memory.InstructionMem.Instructions {
+		for Memory.IsValidPC(Memory.InstructionMem.PC) {
 			Memory.SaveRegisters()
 			if *logPtr == false {
 				fmt.Println("Executing :", Memory.InstructionMem.Instructions[Memory.InstructionMem.PC])
