@@ -99,6 +99,10 @@ func main() {
 	for {
 		line, err := reader.ReadString(';')
 		if err == io.EOF {
+			if len(line) > 1 {
+				fmt.Println("Missing semicolon near :", line)
+				return
+			}
 			break
 		} else if err != nil {
 			fmt.Println("Error while reading file : ", err)
