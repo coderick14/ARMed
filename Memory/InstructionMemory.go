@@ -137,16 +137,6 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 		currentInstructionObject := StoreByteInstruction{inst: currentInstruction}
 		err = executeInstruction(&currentInstructionObject)
 
-	} else if strings.HasPrefix(currentInstruction, "LDXR ") {
-
-		currentInstructionObject := LoadExclusiveInstruction{inst: currentInstruction}
-		err = executeInstruction(&currentInstructionObject)
-
-	} else if strings.HasPrefix(currentInstruction, "STXR ") {
-
-		currentInstructionObject := StoreExclusiveInstruction{inst: currentInstruction}
-		err = executeInstruction(&currentInstructionObject)
-
 	} else if strings.HasPrefix(currentInstruction, "MOVZ ") {
 
 		currentInstructionObject := MoveWithZeroInstruction{inst: currentInstruction}
@@ -1265,28 +1255,28 @@ INSTRUCTION : LOAD EXCLUSIVE REGISTER
 
 Comments : Load; first half of atomic swap
 */
-type LoadExclusiveInstruction struct {
-	inst string
-	reg1 uint
-	reg2 uint
-}
+// type LoadExclusiveInstruction struct {
+// 	inst string
+// 	reg1 uint
+// 	reg2 uint
+// }
 
-func (instruction *LoadExclusiveInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^LDXR X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
-	if r.MatchString(instruction.inst) == false {
-		return errors.New("Syntax error occured in " + instruction.inst)
-	}
-	return nil
-}
+// func (instruction *LoadExclusiveInstruction) checkSyntax() error {
+// 	r, _ := regexp.Compile("^LDXR X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+// 	if r.MatchString(instruction.inst) == false {
+// 		return errors.New("Syntax error occured in " + instruction.inst)
+// 	}
+// 	return nil
+// }
 
-func (instruction *LoadExclusiveInstruction) parse() error {
+// func (instruction *LoadExclusiveInstruction) parse() error {
 
-	return nil
-}
+// 	return nil
+// }
 
-func (instruction *LoadExclusiveInstruction) execute() {
+// func (instruction *LoadExclusiveInstruction) execute() {
 
-}
+// }
 
 
 /*
@@ -1297,29 +1287,29 @@ INSTRUCTION : STORE EXCLUSIVE REGISTER
 
 Comments : Store; second half of atomic swap
 */
-type StoreExclusiveInstruction struct {
-	inst string
-	reg1 uint
-	reg2 uint
-	reg3 uint
-}
+// type StoreExclusiveInstruction struct {
+// 	inst string
+// 	reg1 uint
+// 	reg2 uint
+// 	reg3 uint
+// }
 
-func (instruction *StoreExclusiveInstruction) checkSyntax() error {
-	r, _ := regexp.Compile("^STXR X([0-9]|1[0-9]|2[0-7]), X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
-	if r.MatchString(instruction.inst) == false {
-		return errors.New("Syntax error occured in " + instruction.inst)
-	}
-	return nil
-}
+// func (instruction *StoreExclusiveInstruction) checkSyntax() error {
+// 	r, _ := regexp.Compile("^STXR X([0-9]|1[0-9]|2[0-7]), X([0-9]|1[0-9]|2[0-7]), \\[X(ZR|[0-9]|1[0-9]|2[0-7]), #(0|[1-9][0-9]*)\\]$")
+// 	if r.MatchString(instruction.inst) == false {
+// 		return errors.New("Syntax error occured in " + instruction.inst)
+// 	}
+// 	return nil
+// }
 
-func (instruction *StoreExclusiveInstruction) parse() error {
+// func (instruction *StoreExclusiveInstruction) parse() error {
 
-	return nil
-}
+// 	return nil
+// }
 
-func (instruction *StoreExclusiveInstruction) execute() {
+// func (instruction *StoreExclusiveInstruction) execute() {
 
-}
+// }
 
 
 /*
