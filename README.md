@@ -1,7 +1,7 @@
 # ARMed
 ---
 #### A basic ARM emulator written in Golang 
-![ARMed logo](https://github.com/coderick14/ARMed/blob/dev/images/arm.png "ARMed - an ARM emulator written in Golang" )
+![ARMed logo](https://github.com/coderick14/ARMed/blob/dev/images/logo.png "ARMed - an ARM emulator written in Golang" )
 
 ###### Build instructions
 ```
@@ -9,6 +9,10 @@ go get github.com/coderick14/ARMed
 ```
 ###### Usage
 `ARMed --help` will show all the usage details
+
+---
+
+![ARMed demo GIF](https://github.com/coderick14/ARMed/blob/dev/images/demo.gif "Simple demo of how ARMed works" )
 
 #### Instructions supported in v1.0
 

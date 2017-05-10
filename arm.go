@@ -105,7 +105,9 @@ func main() {
 			return
 		}
 		line = strings.TrimSpace(strings.TrimRight(line, ";"))
-		Memory.InstructionMem.Instructions = append(Memory.InstructionMem.Instructions, line)
+		if len(line) != 0 {
+			Memory.InstructionMem.Instructions = append(Memory.InstructionMem.Instructions, line)
+		}
 	}
 
 	Memory.InitRegisters()
