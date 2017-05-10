@@ -5,9 +5,7 @@
 
 ###### Build instructions
 ```
-git clone https://github.com/coderick14/ARMed
-cd ARMed/
-go build
+go get github.com/coderick14/ARMed
 ```
 ###### Usage
 `ARMed --help` will show all the usage details
