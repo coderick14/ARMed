@@ -1,3 +1,43 @@
+/*
+ARMed version 1.0
+
+Author : https://github.com/coderick14
+
+	ARMed is a very basic emulator of the ARM instruction set written in Golang
+	USAGE : ARMed [OPTIONS]... SOURCE_FILE
+
+	Example SOURCE_FILE :
+
+		ADDI X0, XZR, #3;
+		BL fact;
+		B Exit;
+		fact: SUBI SP, SP, #8;
+		STUR LR, [SP, #4];
+		STUR X0, [SP, #0];
+		SUBIS X9, X0, #1;
+		B.GE L1;
+		ADDI X1, XZR, #1;
+		ADDI SP, SP, #8;
+		BR LR;
+		L1: SUBI X0, X0, #1;
+		BL fact;
+		LDUR X0, [SP, #0];
+		LDUR LR, [SP, #4];
+		ADDI SP, SP, #8;
+		ADD X1, X0, X1;
+		BR LR;
+		Exit:;
+
+
+	--all 		show all register values after an instruction, with updated ones in color
+	--end 		show updated registers only once, at the end of the program. Overrides --all
+	--no-log 	suppress logs of statements being executed
+	--help 		display help
+
+Found a bug? Feel free to raise an issue on https://github.com/coderick14/ARMed
+
+Contributions welcome :)
+*/
 package main
 
 import (
@@ -11,7 +51,7 @@ import (
 	"strings"
 )
 
-var helpString = `ARMed version 1.0
+const helpString = `ARMed version 1.0
 Author : https://github.com/coderick14
 
 ARMed is a very basic emulator of the ARM instruction set written in Golang

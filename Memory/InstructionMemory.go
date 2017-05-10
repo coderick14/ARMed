@@ -8,26 +8,26 @@ import (
 	"strings"
 )
 
+// Struct to represent instruction memory
 type InstructionMemory struct {
 	PC           int64
 	Instructions []string
 	Labels       map[string]int64
 }
 
+// Instance of instruction memory
 var InstructionMem = InstructionMemory{
 	PC:           0,
 	Instructions: []string{},
 	Labels:       make(map[string]int64),
 }
 
+// Instance of data memory
 var dataMemory = DataMemory{
 	Memory: make([]int32, MEMORY_SIZE),
 }
 
-/*
- * Method to update program counter
- */
-
+// Method to update program counter.
 func (instructionMemory *InstructionMemory) updatePC(offset ...int64) {
 	if len(offset) == 0 {
 		instructionMemory.PC += INCREMENT
@@ -36,19 +36,13 @@ func (instructionMemory *InstructionMemory) updatePC(offset ...int64) {
 	}
 }
 
-/*
- * Method to check if program counter is valid (is program over or not)
- */
-
+// Method to check if program counter is valid.
 func IsValidPC(PC int64) bool {
 	isValidPC := PC >= 0 && PC < int64(len(InstructionMem.Instructions))
 	return isValidPC
 }
 
-/*
- * method to extract labels from instructions
- */
-
+// Method to extract labels from instructions.
 func (instructionMemory *InstructionMemory) ExtractLabels() {
 
 	labelRegex, _ := regexp.Compile("^([a-zA-Z][[:alnum:]]*)[[:space:]]*:")
@@ -65,11 +59,7 @@ func (instructionMemory *InstructionMemory) ExtractLabels() {
 	}
 }
 
-/*
- * Function : ValidateAndExecuteInstruction
- * Details  : checks instruction type, performs syntax analysis, parses the statement and executes it
- */
-
+// Method to check instruction type, perform syntax analysis, parse the statement and execute it
 func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() error {
 
 	//get next instruction to be executed from instruction memory
@@ -246,16 +236,19 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 	return err
 }
 
-/*
- * All instructions implement the Instruction interface
- */
-
+// All instructions implement the Instruction interface
 type Instruction interface {
+	// Checks syntax of current instruction and returns an error
 	checkSyntax() error
+
+	// Parses the current instruction and extracts register numbers, constants etc.
 	parse() error
+
+	// emulates the execution of the current instruction
 	execute()
 }
 
+// Function that takes an interface as argument and executes the corresponding instruction
 func executeInstruction(currentInstruction Instruction) error {
 	syntaxError := currentInstruction.checkSyntax()
 	if syntaxError != nil {
@@ -271,12 +264,12 @@ func executeInstruction(currentInstruction Instruction) error {
 }
 
 /*
- * INSTRUCTION : ADDITION
- * Example : ADD X1, X2, X3
- * Meaning : X1 = X2 + X3
- */
+INSTRUCTION : ADDITION
 
-type AddInstruction struct {
+	Example : ADD X1, X2, X3
+	Meaning : X1 = X2 + X3
+*/
+ type AddInstruction struct {
 	inst string
 	reg1 uint
 	reg2 uint
@@ -324,11 +317,11 @@ func (instruction *AddInstruction) execute() {
 }
 
 /*
- * INSTRUCTION : SUBTRACTION
- * Example : SUB X1, X2, X3
- * Meaning : X1 = X2 - X3
- */
+INSTRUCTION : SUBTRACTION
 
+	Example : SUB X1, X2, X3
+	Meaning : X1 = X2 - X3
+*/
 type SubInstruction struct {
 	inst string
 	reg1 uint
@@ -377,11 +370,11 @@ func (instruction *SubInstruction) execute() {
 }
 
 /*
- * INSTRUCTION : ADD IMMEDIATE
- * Example : ADDI X1, X2, 40
- * Meaning : X1 = X2 + 40
- */
+INSTRUCTION : ADD IMMEDIATE
 
+	Example : ADDI X1, X2, 40
+	Meaning : X1 = X2 + 40
+*/
 type AddImmediateInstruction struct {
 	inst     string
 	reg1     uint
@@ -440,11 +433,11 @@ func (instruction *AddImmediateInstruction) execute() {
 }
 
 /*
- * INSTRUCTION : SUB IMMEDIATE
- * Example : SUBI X1, X2, 40
- * Meaning : X1 = X2 - 40
- */
+INSTRUCTION : SUB IMMEDIATE
 
+	Example : SUBI X1, X2, 40
+	Meaning : X1 = X2 - 40
+*/
 type SubImmediateInstruction struct {
 	inst     string
 	reg1     uint
@@ -502,14 +495,16 @@ func (instruction *SubImmediateInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : ADD AND SET FLAGS
- * Example : ADDS X1, X2, X3
- * Meaning : X1 = X2 + X3
- * Comments : Adds and sets condition codes
- */
 
-type AddAndSetFlagsInstruction struct {
+/*
+INSTRUCTION : ADD AND SET FLAGS
+
+	Example : ADDS X1, X2, X3
+	Meaning : X1 = X2 + X3
+
+Comments : Adds and sets condition codes
+*/
+ type AddAndSetFlagsInstruction struct {
 	inst string
 	reg1 uint
 	reg2 uint
@@ -589,13 +584,15 @@ func (instruction *AddAndSetFlagsInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : SUB AND SET FLAGS
- * Example : SUBS X1, X2, X3
- * Meaning : X1 = X2 - X3
- * Comments : Subtracts and sets condition codes
- */
 
+/*
+INSTRUCTION : SUB AND SET FLAGS
+
+	Example : SUBS X1, X2, X3
+	Meaning : X1 = X2 - X3
+
+Comments : Subtracts and sets condition codes
+*/
 type SubAndSetFlagsInstruction struct {
 	inst string
 	reg1 uint
@@ -675,13 +672,15 @@ func (instruction *SubAndSetFlagsInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : ADD IMMEDIATE AND SET FLAGS
- * Example : ADDIS X1, X2, 40
- * Meaning : X1 = X2 + 40
- * Comments : Adds constant and sets condition codes
- */
 
+/*
+INSTRUCTION : ADD IMMEDIATE AND SET FLAGS
+
+	Example : ADDIS X1, X2, 40
+	Meaning : X1 = X2 + 40
+
+Comments : Adds constant and sets condition codes
+*/
 type AddImmediateAndSetFlagsInstruction struct {
 	inst     string
 	reg1     uint
@@ -760,13 +759,15 @@ func (instruction *AddImmediateAndSetFlagsInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : SUB IMMEDIATE AND SET FLAGS
- * Example : SUBIS X1, X2, 40
- * Meaning : X1 = X2 - 40
- * Comments : Subtracts constant and sets condition codes
- */
 
+/*
+INSTRUCTION : SUB IMMEDIATE AND SET FLAGS
+
+	Example : SUBIS X1, X2, 40
+	Meaning : X1 = X2 - 40
+
+Comments : Subtracts constant and sets condition codes
+*/
 type SubImmediateAndSetFlagsInstruction struct {
 	inst     string
 	reg1     uint
@@ -844,13 +845,15 @@ func (instruction *SubImmediateAndSetFlagsInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOAD
- * Example : LDUR X1, [X2, #40]
- * Meaning : X1 = Memory[X2 + 40]
- * Comments : Word from memory to register
- */
 
+/*
+INSTRUCTION : LOAD
+
+	Example : LDUR X1, [X2, #40]
+	Meaning : X1 = Memory[X2 + 40]
+
+Comments : Word from memory to register
+*/
 type LoadInstruction struct {
 	inst   string
 	reg1   uint
@@ -906,13 +909,15 @@ func (instruction *LoadInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : STORE
- * Example : STUR X1, [X2, #40]
- * Meaning : Memory[X2 + 40] = X1
- * Comments : Word from register to memory
- */
 
+/*
+INSTRUCTION : STORE
+
+	Example : STUR X1, [X2, #40]
+	Meaning : Memory[X2 + 40] = X1
+
+Comments : Word from register to memory
+*/
 type StoreInstruction struct {
 	inst   string
 	reg1   uint
@@ -968,13 +973,15 @@ func (instruction *StoreInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOAD HALFWORD
- * Example : LDURH X1, [X2, #40]
- * Meaning : X1 = Memory[X2 + 40]
- * Comments : Halfword from memory to register
- */
 
+/*
+INSTRUCTION : LOAD HALFWORD
+
+	Example : LDURH X1, [X2, #40]
+	Meaning : X1 = Memory[X2 + 40]
+
+Comments : Halfword from memory to register
+*/
 type LoadHalfInstruction struct {
 	inst   string
 	reg1   uint
@@ -1032,13 +1039,15 @@ func (instruction *LoadHalfInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : STORE HALFWORD
- * Example : STURH X1, [X2, #40]
- * Meaning : Memory[X2 + 40] = X1
- * Comments : Halfword from register to memory
- */
 
+/*
+INSTRUCTION : STORE HALFWORD
+
+	Example : STURH X1, [X2, #40]
+	Meaning : Memory[X2 + 40] = X1
+
+Comments : Halfword from register to memory
+*/
 type StoreHalfInstruction struct {
 	inst   string
 	reg1   uint
@@ -1100,13 +1109,15 @@ func (instruction *StoreHalfInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOAD BYTE
- * Example : LDURB X1, [X2, #40]
- * Meaning : X1 = Memory[X2 + 40]
- * Comments : Byte from memory to register
- */
 
+/*
+INSTRUCTION : LOAD BYTE
+
+	Example : LDURB X1, [X2, #40]
+	Meaning : X1 = Memory[X2 + 40]
+
+Comments : Byte from memory to register
+*/
 type LoadByteInstruction struct {
 	inst   string
 	reg1   uint
@@ -1165,13 +1176,15 @@ func (instruction *LoadByteInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : STORE BYTE
- * Example : STURB X1, [X2, #40]
- * Meaning : Memory[X2 + 40] = X1
- * Comments : Byte from register to memory
- */
 
+/*
+INSTRUCTION : STORE BYTE
+
+	Example : STURB X1, [X2, #40]
+	Meaning : Memory[X2 + 40] = X1
+
+Comments : Byte from register to memory
+*/
 type StoreByteInstruction struct {
 	inst   string
 	reg1   uint
@@ -1243,13 +1256,15 @@ func (instruction *StoreByteInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOAD EXCLUSIVE REGISTER
- * Example : LDXR X1, [X2, #0]
- * Meaning : X1 = Memory[X2]
- * Comments : Load; first half of atomic swap
- */
 
+/*
+INSTRUCTION : LOAD EXCLUSIVE REGISTER
+
+	Example : LDXR X1, [X2, #0]
+	Meaning : X1 = Memory[X2]
+
+Comments : Load; first half of atomic swap
+*/
 type LoadExclusiveInstruction struct {
 	inst string
 	reg1 uint
@@ -1273,13 +1288,15 @@ func (instruction *LoadExclusiveInstruction) execute() {
 
 }
 
-/*
- * INSTRUCTION : STORE EXCLUSIVE REGISTER
- * Example : STXR X1, X3, [X2, #0]
- * Meaning : Memory[X2] = X1; X3 = 0 or 1
- * Comments : Store; second half of atomic swap
- */
 
+/*
+INSTRUCTION : STORE EXCLUSIVE REGISTER
+
+	Example : STXR X1, X3, [X2, #0]
+	Meaning : Memory[X2] = X1; X3 = 0 or 1
+
+Comments : Store; second half of atomic swap
+*/
 type StoreExclusiveInstruction struct {
 	inst string
 	reg1 uint
@@ -1304,13 +1321,15 @@ func (instruction *StoreExclusiveInstruction) execute() {
 
 }
 
-/*
- * INSTRUCTION : MOVE WITH ZERO
- * Example : MOVZ X1, 20, LSL 0
- * Meaning : X1 = 20 or 20*(2^16) or 20*(2^32) or 20*(2^48)
- * Comments : Loads 16-bit constant, rest zeroes
- */
 
+/*
+INSTRUCTION : MOVE WITH ZERO
+
+	Example : MOVZ X1, 20, LSL 0
+	Meaning : X1 = 20 or 20*(2^16) or 20*(2^32) or 20*(2^48)
+
+Comments : Loads 16-bit constant, rest zeroes
+*/
 type MoveWithZeroInstruction struct {
 	inst     string
 	reg1     uint
@@ -1355,13 +1374,15 @@ func (instruction *MoveWithZeroInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : MOVE WITH KEEP
- * Example : MOVK X1, 20, LSL 0
- * Meaning : X1 = 20 or 20*(2^16) or 20*(2^32) or 20*(2^48)
- * Comments : Loads 16-bit constant, rest unchanged
- */
 
+/*
+INSTRUCTION : MOVE WITH KEEP
+
+	Example : MOVK X1, 20, LSL 0
+	Meaning : X1 = 20 or 20*(2^16) or 20*(2^32) or 20*(2^48)
+
+Comments : Loads 16-bit constant, rest unchanged
+*/
 type MoveWithKeepInstruction struct {
 	inst     string
 	reg1     uint
@@ -1419,13 +1440,15 @@ func (instruction *MoveWithKeepInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOGICAL AND
- * Example : AND X1, X2, X3
- * Meaning : X1 = X2 & X3
- * Comments : Bitwise-And of X2 and X3, stores result in X1
- */
 
+/*
+INSTRUCTION : LOGICAL AND
+
+	Example : AND X1, X2, X3
+	Meaning : X1 = X2 & X3
+
+Comments : Bitwise-And of X2 and X3, stores result in X1
+*/
 type AndInstruction struct {
 	inst string
 	reg1 uint
@@ -1473,13 +1496,15 @@ func (instruction *AndInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOGICAL OR
- * Example : ORR X1, X2, X3
- * Meaning : X1 = X2 | X3
- * Comments : Bitwise-Or of X2 and X3, stores result in X1
- */
 
+/*
+INSTRUCTION : LOGICAL OR
+
+	Example : ORR X1, X2, X3
+	Meaning : X1 = X2 | X3
+
+Comments : Bitwise-Or of X2 and X3, stores result in X1
+*/
 type OrInstruction struct {
 	inst string
 	reg1 uint
@@ -1527,13 +1552,15 @@ func (instruction *OrInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOGICAL EXCLUSIVE-OR
- * Example : EOR X1, X2, X3
- * Meaning : X1 = X2 ^ X3
- * Comments : Bitwise-Xor of X2 and X3, stores result in X1
- */
 
+/*
+INSTRUCTION : LOGICAL EXCLUSIVE-OR
+
+	Example : EOR X1, X2, X3
+	Meaning : X1 = X2 ^ X3
+
+Comments : Bitwise-Xor of X2 and X3, stores result in X1
+*/
 type ExclusiveOrInstruction struct {
 	inst string
 	reg1 uint
@@ -1581,13 +1608,15 @@ func (instruction *ExclusiveOrInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOGICAL AND IMMEDIATE
- * Example : ANDI X1, X2, #20
- * Meaning : X1 = X2 & 20
- * Comments : Bitwise-And of X2 with a constant, stores result in X1
- */
 
+/*
+INSTRUCTION : LOGICAL AND IMMEDIATE
+
+	Example : ANDI X1, X2, #20
+	Meaning : X1 = X2 & 20
+
+Comments : Bitwise-And of X2 with a constant, stores result in X1
+*/
 type AndImmediateInstruction struct {
 	inst     string
 	reg1     uint
@@ -1633,13 +1662,15 @@ func (instruction *AndImmediateInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOGICAL OR IMMEDIATE
- * Example : ORRI X1, X2, #20
- * Meaning : X1 = X2 | 20
- * Comments : Bitwise-Or of X2 with a constant, stores result in X1
- */
 
+/*
+INSTRUCTION : LOGICAL OR IMMEDIATE
+
+	Example : ORRI X1, X2, #20
+	Meaning : X1 = X2 | 20
+
+Comments : Bitwise-Or of X2 with a constant, stores result in X1
+*/
 type OrImmediateInstruction struct {
 	inst     string
 	reg1     uint
@@ -1685,13 +1716,15 @@ func (instruction *OrImmediateInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOGICAL EXCLUSIVE-OR IMMEDIATE
- * Example : EORI X1, X2, #20
- * Meaning : X1 = X2 ^ 20
- * Comments : Bitwise-Xor of X2 with a constant, stores result in X1
- */
 
+/*
+INSTRUCTION : LOGICAL EXCLUSIVE-OR IMMEDIATE
+
+	Example : EORI X1, X2, #20
+	Meaning : X1 = X2 ^ 20
+
+Comments : Bitwise-Xor of X2 with a constant, stores result in X1
+*/
 type ExclusiveOrImmediateInstruction struct {
 	inst     string
 	reg1     uint
@@ -1737,13 +1770,15 @@ func (instruction *ExclusiveOrImmediateInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOGICAL LEFT SHIFT
- * Example : LSL X1, X2, #10
- * Meaning : X1 = X2 << 10
- * Comments : Left shifts X2 by a constant, stores result in X1
- */
 
+/*
+INSTRUCTION : LOGICAL LEFT SHIFT
+
+	Example : LSL X1, X2, #10
+	Meaning : X1 = X2 << 10
+
+Comments : Left shifts X2 by a constant, stores result in X1
+*/
 type LeftShiftInstruction struct {
 	inst   string
 	reg1   uint
@@ -1789,13 +1824,15 @@ func (instruction *LeftShiftInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : LOGICAL RIGHT SHIFT
- * Example : LSR X1, X2, #10
- * Meaning : X1 = X2 >> 10
- * Comments : Right shifts X2 by a constant, stores result in X1
- */
 
+/*
+INSTRUCTION : LOGICAL RIGHT SHIFT
+
+	Example : LSR X1, X2, #10
+	Meaning : X1 = X2 >> 10
+
+Comments : Right shifts X2 by a constant, stores result in X1
+*/
 type RightShiftInstruction struct {
 	inst   string
 	reg1   uint
@@ -1841,13 +1878,15 @@ func (instruction *RightShiftInstruction) execute() {
 	InstructionMem.updatePC()
 }
 
-/*
- * INSTRUCTION : COMPARE AND BRANCH ON EQUAL 0
- * Example : CBZ X1, label
- * Meaning : if (X1 == 0) go to label
- * Comments : Equal 0 test; PC-relative branch
- */
 
+/*
+INSTRUCTION : COMPARE AND BRANCH ON EQUAL 0
+
+	Example : CBZ X1, label
+	Meaning : if (X1 == 0) go to label
+
+Comments : Equal 0 test; PC-relative branch
+*/
 type BranchOnZeroInstruction struct {
 	inst   string
 	reg1   uint
@@ -1891,13 +1930,15 @@ func (instruction *BranchOnZeroInstruction) execute() {
 	}
 }
 
-/*
- * INSTRUCTION : COMPARE AND BRANCH ON NOT EQUAL 0
- * Example : CBNZ X1, label
- * Meaning : if (X1 != 0) go to label
- * Comments : NotEqual 0 test; PC-relative branch
- */
 
+/*
+INSTRUCTION : COMPARE AND BRANCH ON NOT EQUAL 0
+
+	Example : CBNZ X1, label
+	Meaning : if (X1 != 0) go to label
+
+Comments : NotEqual 0 test; PC-relative branch
+*/
 type BranchOnNonZeroInstruction struct {
 	inst   string
 	reg1   uint
@@ -1941,13 +1982,15 @@ func (instruction *BranchOnNonZeroInstruction) execute() {
 	}
 }
 
-/*
- * INSTRUCTION : CONDITIONAL BRANCH
- * Example : B.cond label
- * Meaning : if (condition true) go to label
- * Comments : Test condition codes; if true, then branch
- */
 
+/*
+INSTRUCTION : CONDITIONAL BRANCH
+
+	Example : B.cond label
+	Meaning : if (condition true) go to label
+
+Comments : Test condition codes; if true, then branch
+*/
 type ConditionalBranchInstruction struct {
 	inst      string
 	offset    int64
@@ -2024,13 +2067,15 @@ func (instruction *ConditionalBranchInstruction) execute() {
 	}
 }
 
-/*
- * INSTRUCTION : UNCONDITIONAL BRANCH
- * Example : B label
- * Meaning : go to label
- * Comments : Branch to PC-relative target address
- */
 
+/*
+INSTRUCTION : UNCONDITIONAL BRANCH
+
+	Example : B label
+	Meaning : go to label
+
+Comments : Branch to PC-relative target address
+*/
 type BranchInstruction struct {
 	inst   string
 	offset int64
@@ -2063,13 +2108,15 @@ func (instruction *BranchInstruction) execute() {
 	InstructionMem.updatePC(instruction.offset)
 }
 
-/*
- * INSTRUCTION : UNCONDITIONAL BRANCH TO REGISTER
- * Example : BR LR
- * Meaning : go to address stored in LR
- * Comments : Branch to address stored in register. Used for switch, procedure return
- */
 
+/*
+INSTRUCTION : UNCONDITIONAL BRANCH TO REGISTER
+
+	Example : BR LR
+	Meaning : go to address stored in LR
+
+Comments : Branch to address stored in register. Used for switch, procedure return
+*/
 type BranchToRegisterInstruction struct {
 	inst   string
 	reg1   uint
@@ -2110,13 +2157,15 @@ func (instruction *BranchToRegisterInstruction) execute() {
 	InstructionMem.updatePC(instruction.offset)
 }
 
-/*
- * INSTRUCTION : UNCONDITIONAL BRANCH WITH LINK
- * Example : BL label
- * Meaning : X30 = PC + 4; go to label
- * Comments : For procedure call (PC-relative)
- */
 
+/*
+INSTRUCTION : UNCONDITIONAL BRANCH WITH LINK
+
+	Example : BL label
+	Meaning : X30 = PC + 4; go to label
+
+Comments : For procedure call (PC-relative)
+*/
 type BranchWithLinkInstruction struct {
 	inst   string
 	offset int64
