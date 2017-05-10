@@ -391,6 +391,11 @@ func (instruction *AddImmediateInstruction) parse() error {
 		instruction.reg2 = SP
 		instruction.constant = uint(constant)
 
+		address := getRegisterValue(instruction.reg2) + int64(instruction.constant)
+		if address >= MEMORY_SIZE {
+			return errors.New("Stack underflow error in : " + instruction.inst)
+		}
+
 		return nil
 	}
 
@@ -453,6 +458,11 @@ func (instruction *SubImmediateInstruction) parse() error {
 		instruction.reg1 = SP
 		instruction.reg2 = SP
 		instruction.constant = uint(constant)
+
+		address := getRegisterValue(instruction.reg2) + int64(instruction.constant)
+		if address < (MEMORY_SIZE - STACK_SIZE) {
+			return errors.New("Stack overflow error in : " + instruction.inst)
+		}
 
 		return nil
 	}
