@@ -18,13 +18,13 @@ var registers, buffer [32]int64
 
 var flagNegative, flagZero, flagOverflow, flagCarry bool
 
-// method to initiate register values.
+// InitRegisters is a function to initiate register values.
 func InitRegisters() {
 	registers[XZR] = 0
 	registers[SP] = MEMORY_SIZE * 4
 }
 
-// function to store register values in a buffer.
+// SaveRegisters is a function to store register values in a buffer.
 func SaveRegisters() {
 	var i int
 	for i = 0; i < 32; i++ {
@@ -32,7 +32,7 @@ func SaveRegisters() {
 	}
 }
 
-// function to pretty print register values to terminal.
+// ShowRegisters is a function to pretty print register values to terminal.
 func ShowRegisters(showAll bool) {
 	var i int
 	var hasUpdated bool = false

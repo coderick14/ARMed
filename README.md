@@ -1,6 +1,11 @@
 # ARMed
 ---
 #### A basic ARM emulator written in Golang 
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/coderick14/ARMed/issues)
+[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/coderick14/ARMed/) 
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
+[![GoDoc](https://godoc.org/github.com/coderick14/ARMed?status.svg)](https://godoc.org/github.com/coderick14/ARMed)
+
 ![ARMed logo](https://github.com/coderick14/ARMed/blob/dev/images/logo.png "ARMed - an ARM emulator written in Golang" )
 
 ###### Build instructions
@@ -221,7 +226,3 @@ Example : BL label
 Meaning : X30 = PC + 4; go to label
 Comments : For procedure call (PC-relative)
 ```
-
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/coderick14/ARMed/issues)
-
-[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/coderick14/ARMed/)      [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
