@@ -14,11 +14,15 @@ Requires Go to be [installed](https://golang.org/doc/install) and [configured](h
 ```
 go get github.com/coderick14/ARMed
 ```
+<<<<<<< fdb13eeb036c2f19a265fa6944091d965d288f48
 
 ##### Download the compiled binary
 Just download the binary for your required OS and architecture from [releases](https://github.com/coderick14/ARMed/releases)
 
 #### Usage
+=======
+##### Usage
+>>>>>>> Update GIF
 `ARMed --help` will show all the usage details
 ```
 ARMed version 1.0
@@ -35,6 +39,11 @@ USAGE : ARMed [OPTIONS]... SOURCE_FILE
 Found a bug? Feel free to raise an issue on https://github.com/coderick14/ARMed
 Contributions welcome :)
 ```
+
+---
+
+##### Contributions
+Found a bug? Or maybe add support for some more instructions? Feel free to open up a pull request or raise an issue!!
 
 ---
 
