@@ -8,12 +8,18 @@
 
 ![ARMed logo](https://github.com/coderick14/ARMed/blob/dev/images/logo.png "ARMed - an ARM emulator written in Golang" )
 
-###### Build instructions
+##### Build instructions
+Requires Go to be [installed](https://golang.org/doc/install) and [configured](https://golang.org/doc/install#testing)
 ```
 go get github.com/coderick14/ARMed
 ```
-###### Usage
+##### Usage
 `ARMed --help` will show all the usage details
+
+---
+
+##### Contributions
+Found a bug? Or maybe add support for some more instructions? Feel free to open up a pull request or raise an issue!!
 
 ---
 
