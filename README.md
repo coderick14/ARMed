@@ -8,12 +8,17 @@
 
 ![ARMed logo](https://github.com/coderick14/ARMed/blob/dev/images/logo.png "ARMed - an ARM emulator written in Golang" )
 
-##### Build instructions
+#### Build instructions
+##### Build from source
 Requires Go to be [installed](https://golang.org/doc/install) and [configured](https://golang.org/doc/install#testing)
 ```
 go get github.com/coderick14/ARMed
 ```
-##### Usage
+
+##### Download the compiled binary
+Just download the binary for your required OS and architecture from [releases](https://github.com/coderick14/ARMed/releases)
+
+#### Usage
 `ARMed --help` will show all the usage details
 
 ---
@@ -24,6 +29,11 @@ Found a bug? Or maybe add support for some more instructions? Feel free to open 
 ---
 
 ![ARMed demo GIF](https://github.com/coderick14/ARMed/blob/dev/images/demo.gif "Simple demo of how ARMed works" )
+##### NOTE : On Windows, if your cmd does not support unicode characters, pipe your output to a file.
+```
+ARMed.exe myfile > output.txt
+```
+Then view the file in your favourite editor (Notepad++, Wordpad, Sublime Text etc)
 
 #### Instructions supported in v1.0
 
