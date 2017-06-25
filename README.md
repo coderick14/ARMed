@@ -20,6 +20,21 @@ Just download the binary for your required OS and architecture from [releases](h
 
 #### Usage
 `ARMed --help` will show all the usage details
+```
+ARMed version 1.0
+Author : https://github.com/coderick14
+
+ARMed is a very basic emulator of the ARM instruction set written in Golang
+USAGE : ARMed [OPTIONS]... SOURCE_FILE
+
+--all 		show all register values after an instruction, with updated ones in color
+--end 		show updated registers only once, at the end of the program. Overrides --all
+--no-log 	suppress logs of statements being executed
+--help 		display help
+
+Found a bug? Feel free to raise an issue on https://github.com/coderick14/ARMed
+Contributions welcome :)
+```
 
 ---
 
