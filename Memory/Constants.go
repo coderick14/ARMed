@@ -9,6 +9,9 @@ const MEMORY_SIZE = 4096
 // Stack size in number of words
 const STACK_SIZE = 256
 
+// Number of bytes in a word
+const WORD_SIZE = 4
+
 // XZR register number
 const XZR = 31
 

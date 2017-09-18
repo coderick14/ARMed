@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"fmt"
 	"errors"
 	ALU "github.com/coderick14/ARMed/ALU"
 	"regexp"
@@ -392,7 +393,7 @@ func (instruction *AddImmediateInstruction) parse() error {
 		instruction.constant = uint(constant)
 
 		address := getRegisterValue(instruction.reg2) + int64(instruction.constant)
-		if address >= MEMORY_SIZE {
+		if address > MEMORY_SIZE * WORD_SIZE {
 			return errors.New("Stack underflow error in : " + instruction.inst)
 		}
 
@@ -460,7 +461,7 @@ func (instruction *SubImmediateInstruction) parse() error {
 		instruction.constant = uint(constant)
 
 		address := getRegisterValue(instruction.reg2) + int64(instruction.constant)
-		if address < (MEMORY_SIZE - STACK_SIZE) {
+		if address < (MEMORY_SIZE - STACK_SIZE) * WORD_SIZE {
 			return errors.New("Stack overflow error in : " + instruction.inst)
 		}
 
