@@ -5,6 +5,11 @@ func Adder(val1, val2 int64) int64 {
 	return val1 + val2
 }
 
+//Function to perform signed multiplication of two int64 numbers.
+func Multiplier(val1, val2 int64) int64 {
+	return val1 * val2
+}
+
 //Function to perform logical AND operation of two int64 numbers.
 func LogicalAND(val1, val2 int64) int64 {
 	return val1 & val2

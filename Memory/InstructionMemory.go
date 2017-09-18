@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"fmt"
 	"errors"
 	ALU "github.com/coderick14/ARMed/ALU"
 	"regexp"
@@ -76,6 +75,11 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 	} else if strings.HasPrefix(currentInstruction, "SUB ") {
 
 		currentInstructionObject := SubInstruction{inst: currentInstruction}
+		err = executeInstruction(&currentInstructionObject)
+
+	} else if strings.HasPrefix(currentInstruction, "MUL ") {
+
+		currentInstructionObject := MulInstruction{inst: currentInstruction}
 		err = executeInstruction(&currentInstructionObject)
 
 	} else if strings.HasPrefix(currentInstruction, "ADDI ") {
@@ -356,6 +360,59 @@ func (instruction *SubInstruction) parse() error {
 
 func (instruction *SubInstruction) execute() {
 	result := ALU.Adder(getRegisterValue(instruction.reg2), -getRegisterValue(instruction.reg3))
+	setRegisterValue(instruction.reg1, result)
+	InstructionMem.updatePC()
+}
+
+/*
+INSTRUCTION : MULTIPLICATION
+
+	Example : MUL X1, X2, X3
+	Meaning : X1 = X2 * X3
+*/
+type MulInstruction struct {
+	inst string
+	reg1 uint
+	reg2 uint
+	reg3 uint
+}
+
+func (instruction *MulInstruction) checkSyntax() error {
+	r, _ := regexp.Compile("^MUL X([0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7]), X(ZR|[0-9]|1[0-9]|2[0-7])$")
+	if r.MatchString(instruction.inst) == false {
+		return errors.New("Syntax error occurred in " + instruction.inst)
+	}
+	return nil
+}
+
+func (instruction *MulInstruction) parse() error {
+	statement := instruction.inst
+	var registers [3]int
+	var i, indexX, indexComma int
+	for i = 0; i < 3; i++ {
+		indexX = strings.Index(statement, "X")
+		indexComma = strings.Index(statement, ",")
+		if indexComma == -1 {
+			indexComma = len(statement)
+		}
+		if statement[indexX+1:indexComma] == "ZR" {
+			registers[i] = XZR
+		} else {
+			registers[i], _ = strconv.Atoi(statement[indexX+1 : indexComma])
+		}
+		if indexComma < len(statement) {
+			statement = statement[indexComma+1:]
+		}
+	}
+	instruction.reg1 = uint(registers[0])
+	instruction.reg2 = uint(registers[1])
+	instruction.reg3 = uint(registers[2])
+
+	return nil
+}
+
+func (instruction *MulInstruction) execute() {
+	result := ALU.Multiplier(getRegisterValue(instruction.reg2), getRegisterValue(instruction.reg3))
 	setRegisterValue(instruction.reg1, result)
 	InstructionMem.updatePC()
 }
