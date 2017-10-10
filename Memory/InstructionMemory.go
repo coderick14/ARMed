@@ -42,6 +42,11 @@ func IsValidPC(PC int64) bool {
 	return isValidPC
 }
 
+// isEmptyInstruction is a method to check for null instructions (NoOps)
+func isEmptyInstruction(currentInstruction string) bool {
+	return len(currentInstruction) == 0
+}
+
 // ExtractLabels is a method to extract labels from instructions.
 func (instructionMemory *InstructionMemory) ExtractLabels() {
 
@@ -64,6 +69,11 @@ func (instructionMemory *InstructionMemory) ValidateAndExecuteInstruction() erro
 
 	//get next instruction to be executed from instruction memory
 	currentInstruction := instructionMemory.Instructions[instructionMemory.PC]
+
+	if isEmptyInstruction(currentInstruction) {
+		instructionMemory.updatePC()
+		return nil
+	}
 
 	var err error
 
@@ -450,7 +460,7 @@ func (instruction *AddImmediateInstruction) parse() error {
 		instruction.constant = uint(constant)
 
 		address := getRegisterValue(instruction.reg2) + int64(instruction.constant)
-		if address > MEMORY_SIZE * WORD_SIZE {
+		if address > MEMORY_SIZE*WORD_SIZE {
 			return errors.New("Stack underflow error in : " + instruction.inst)
 		}
 
@@ -518,7 +528,7 @@ func (instruction *SubImmediateInstruction) parse() error {
 		instruction.constant = uint(constant)
 
 		address := getRegisterValue(instruction.reg2) + int64(instruction.constant)
-		if address < (MEMORY_SIZE - STACK_SIZE) * WORD_SIZE {
+		if address < (MEMORY_SIZE-STACK_SIZE)*WORD_SIZE {
 			return errors.New("Stack overflow error in : " + instruction.inst)
 		}
 
