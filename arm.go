@@ -24,7 +24,7 @@ Author : https://github.com/coderick14
 		LDUR X0, [SP, #0];
 		LDUR LR, [SP, #4];
 		ADDI SP, SP, #8;
-		ADD X1, X0, X1;
+		MUL X1, X0, X1;
 		BR LR;
 		Exit:;
 
