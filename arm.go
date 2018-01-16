@@ -66,7 +66,10 @@ Found a bug? Feel free to raise an issue on https://github.com/coderick14/ARMed
 Contributions welcome :)`
 
 func main() {
-	var err error
+	var (
+		err error
+		choice string
+	)
 	helpPtr := flag.Bool("help", false, "Display help")
 	allPtr := flag.Bool("all", false, "Display all registers after each instruction")
 	endPtr := flag.Bool("end", false, "Display registers only at end")
@@ -144,8 +147,11 @@ func main() {
 				return
 			}
 			Memory.ShowRegisters(*allPtr)
+			fmt.Printf("Continue [Y/n]? : ")
+			fmt.Scanln(&choice)
+			if choice == "n" {
+				break;
+			}
 		}
-
 	}
-
 }
