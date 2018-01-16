@@ -39,7 +39,7 @@ Contributions welcome :)
 ---
 
 ##### Contributions
-Found a bug? Or maybe add support for some more instructions? Feel free to open up a pull request or raise an issue!!
+Found a bug? Or maybe add support for some more instructions? Feel free to open up a pull request or raise an issue!
 
 ---
 
